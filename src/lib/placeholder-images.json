@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "idli-sambar",
+      "description": "Steaming hot idli with sambar",
+      "imageUrl": "https://picsum.photos/seed/idli/600/400",
+      "imageHint": "idli sambar"
+    },
+    {
+      "id": "masala-dosa",
+      "description": "Crispy golden masala dosa",
+      "imageUrl": "https://picsum.photos/seed/dosa/600/400",
+      "imageHint": "masala dosa"
+    },
+    {
+      "id": "south-thali",
+      "description": "Complete South Indian Thali",
+      "imageUrl": "https://picsum.photos/seed/thali/600/400",
+      "imageHint": "indian thali"
+    },
+    {
+      "id": "chapati-kurma",
+      "description": "Soft chapatis with vegetable kurma",
+      "imageUrl": "https://picsum.photos/seed/chapati/600/400",
+      "imageHint": "chapati curry"
+    }
+  ]
 }
