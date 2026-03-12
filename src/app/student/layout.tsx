@@ -4,26 +4,30 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/shared/app-sidebar";
 import { useStore } from "@/hooks/use-store";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const { user, isAdmin } = useStore();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // If not logged in and not on the login page, redirect to login
-    if (!user && !isAdmin && pathname !== "/student/login") {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !user && !isAdmin && pathname !== "/student/login") {
       router.push("/student/login");
     }
-  }, [user, isAdmin, router, pathname]);
+  }, [user, isAdmin, router, pathname, mounted]);
 
-  // If on the login page, render children directly without sidebar
+  if (!mounted) return null;
+
   if (pathname === "/student/login") {
     return <>{children}</>;
   }
 
-  // If not authenticated and still being redirected, don't show the dashboard layout
   if (!user && !isAdmin) return null;
 
   return (
@@ -36,7 +40,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           <div className="flex items-center gap-4">
             <div className="text-right">
               <p className="concierge-text text-muted-foreground">Current Member</p>
-              <p className="text-sm font-bold">{user?.name}</p>
+              <p className="text-sm font-bold">{user?.name || "Administrator"}</p>
             </div>
           </div>
         </header>

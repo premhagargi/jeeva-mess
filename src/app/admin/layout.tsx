@@ -4,26 +4,30 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/shared/app-sidebar";
 import { useStore } from "@/hooks/use-store";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isAdmin } = useStore();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // If not admin and not on the login page, redirect to login
-    if (!isAdmin && pathname !== "/admin/login") {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAdmin && pathname !== "/admin/login") {
       router.push("/admin/login");
     }
-  }, [isAdmin, router, pathname]);
+  }, [isAdmin, router, pathname, mounted]);
 
-  // If on the login page, render children directly without sidebar
+  if (!mounted) return null;
+
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
 
-  // If not authenticated and still being redirected, don't show the admin layout
   if (!isAdmin) return null;
 
   return (
