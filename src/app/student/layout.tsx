@@ -3,19 +3,27 @@
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/shared/app-sidebar";
 import { useStore } from "@/hooks/use-store";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const { user, isAdmin } = useStore();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (!user && !isAdmin) {
+    // If not logged in and not on the login page, redirect to login
+    if (!user && !isAdmin && pathname !== "/student/login") {
       router.push("/student/login");
     }
-  }, [user, isAdmin, router]);
+  }, [user, isAdmin, router, pathname]);
 
+  // If on the login page, render children directly without sidebar
+  if (pathname === "/student/login") {
+    return <>{children}</>;
+  }
+
+  // If not authenticated and still being redirected, don't show the dashboard layout
   if (!user && !isAdmin) return null;
 
   return (
