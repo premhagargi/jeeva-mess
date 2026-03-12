@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, UtensilsCrossed, CalendarDays, History } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export default function StudentDashboard() {
   const { user, orders } = useStore();
