@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Order, MenuItem, INITIAL_ORDERS, Student, MOCK_STUDENTS } from '@/lib/mock-data';
+import { Order, MenuItem, INITIAL_ORDERS, Student, MOCK_STUDENTS, ThaliMenu, ThaliItem, INITIAL_THALI_MENU } from '@/lib/mock-data';
 
 interface CartItem extends MenuItem {
   quantity: number;
@@ -11,6 +11,7 @@ interface CartItem extends MenuItem {
 let globalCart: CartItem[] = [];
 let globalOrders: Order[] = INITIAL_ORDERS;
 let globalStudents: Student[] = MOCK_STUDENTS;
+let globalThaliMenu: ThaliMenu = INITIAL_THALI_MENU;
 let currentUser: Student | null = null;
 let isAdmin: boolean = false;
 
@@ -25,6 +26,7 @@ export function useStore() {
     cart: globalCart,
     orders: globalOrders,
     students: globalStudents,
+    thaliMenu: globalThaliMenu,
     user: currentUser,
     isAdmin: isAdmin,
   });
@@ -35,6 +37,7 @@ export function useStore() {
         cart: [...globalCart],
         orders: [...globalOrders],
         students: [...globalStudents],
+        thaliMenu: { ...globalThaliMenu },
         user: currentUser,
         isAdmin: isAdmin,
       });
@@ -46,7 +49,6 @@ export function useStore() {
   }, []);
 
   const loginAsStudent = (id: string) => {
-    // Check both STU-prefix and raw ID for convenience in prototype
     const cleanId = id.replace('STU', '');
     const student = globalStudents.find(s => s.id === cleanId || s.id === id);
     if (student) {
@@ -135,6 +137,37 @@ export function useStore() {
     return true;
   };
 
+  const updateThaliItem = (type: 'lunch' | 'dinner', itemId: string, newName: string) => {
+    const items = globalThaliMenu[type];
+    const item = items.find(i => i.id === itemId);
+    if (item) {
+      item.name = newName;
+      globalThaliMenu = { ...globalThaliMenu };
+      notify();
+    }
+  };
+
+  const addThaliItem = (type: 'lunch' | 'dinner', name: string) => {
+    const newItem: ThaliItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      name,
+      isCore: false
+    };
+    globalThaliMenu[type].push(newItem);
+    globalThaliMenu = { ...globalThaliMenu };
+    notify();
+  };
+
+  const removeThaliItem = (type: 'lunch' | 'dinner', itemId: string) => {
+    const items = globalThaliMenu[type];
+    const item = items.find(i => i.id === itemId);
+    if (item && !item.isCore) {
+      globalThaliMenu[type] = items.filter(i => i.id !== itemId);
+      globalThaliMenu = { ...globalThaliMenu };
+      notify();
+    }
+  };
+
   return {
     ...state,
     addToCart,
@@ -145,6 +178,9 @@ export function useStore() {
     loginAsAdmin,
     logout,
     updateOrderStatus,
-    registerStudent
+    registerStudent,
+    updateThaliItem,
+    addThaliItem,
+    removeThaliItem
   };
 }

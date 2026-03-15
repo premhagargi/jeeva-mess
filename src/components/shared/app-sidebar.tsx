@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, UtensilsCrossed, ShoppingCart, History, LogOut, PackageSearch, Users } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, ShoppingCart, History, LogOut, PackageSearch, Users, Utensils } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useStore } from "@/hooks/use-store";
@@ -32,6 +32,7 @@ export function AppSidebar() {
   const adminLinks = [
     { title: "Admin Overview", href: "/admin/dashboard", icon: LayoutDashboard },
     { title: "Manage Orders", href: "/admin/orders", icon: PackageSearch },
+    { title: "Manage Menu", href: "/admin/menu", icon: Utensils },
     { title: "Students", href: "/admin/students", icon: Users },
   ];
 

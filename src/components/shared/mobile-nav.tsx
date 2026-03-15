@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, UtensilsCrossed, ShoppingCart, History, PackageSearch, Users } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, ShoppingCart, History, PackageSearch, Users, Utensils } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/hooks/use-store";
@@ -20,6 +20,7 @@ export function MobileNav() {
   const adminLinks = [
     { title: "Home", href: "/admin/dashboard", icon: LayoutDashboard },
     { title: "Orders", href: "/admin/orders", icon: PackageSearch },
+    { title: "Menu", href: "/admin/menu", icon: Utensils },
     { title: "Students", href: "/admin/students", icon: Users },
   ];
 
