@@ -33,38 +33,31 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[#050505] relative overflow-hidden">
-      {/* Dynamic Abstract Background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Primary Ambient Glow */}
-        <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] rounded-full bg-accent/20 blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-accent/15 blur-[100px]" />
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#FAF9F6] relative overflow-hidden">
+      {/* Premium Ambient Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Subtle Maroon Accent Glow (Top Left) */}
+        <div className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-accent/5 blur-[120px]" />
         
-        {/* Radial Mesh Effect */}
-        <div className="absolute inset-0 opacity-20" 
-             style={{ background: 'radial-gradient(circle at 50% 50%, transparent 0%, #000 100%)' }} />
-
-        {/* Subtle Geometric Grid */}
-        <div className="absolute inset-0 opacity-[0.05]" 
-             style={{ backgroundImage: 'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-
-        {/* Moving Light Particles (CSS Only) */}
-        <div className="absolute top-1/4 left-1/3 w-1 h-1 bg-white rounded-full blur-[2px] opacity-40 animate-ping" />
-        <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-white rounded-full blur-[2px] opacity-30 animate-ping [animation-delay:1s]" />
+        {/* Warm Cream Glow (Bottom Right) */}
+        <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-[#F5E6D3]/30 blur-[100px]" />
+        
+        {/* Radial Vignette to focus the center */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/[0.02]" />
       </div>
 
-      <Card className="w-full max-w-md border-border/50 shadow-2xl bg-background/95 backdrop-blur-sm relative z-10 rounded-none">
+      <Card className="w-full max-w-md border-border/60 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] bg-white/95 backdrop-blur-md relative z-10 rounded-none">
         <CardHeader className="space-y-4">
-          <Link href="/" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] hover:text-accent transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-accent transition-colors">
             <ArrowLeft className="h-3 w-3" /> Back to Home
           </Link>
-          <div className="flex items-center gap-3 pt-2">
-            <div className="p-2 bg-accent/10">
-              <ShieldCheck className="h-8 w-8 text-accent" />
+          <div className="flex items-center gap-4 pt-2">
+            <div className="p-2.5 bg-accent/5 border border-accent/10">
+              <ShieldCheck className="h-7 w-7 text-accent" />
             </div>
-            <div className="space-y-1">
-              <CardTitle className="text-3xl font-black uppercase tracking-tighter">Admin Portal</CardTitle>
-              <CardDescription className="concierge-text text-accent">Kitchen Control Center</CardDescription>
+            <div className="space-y-0.5">
+              <CardTitle className="text-2xl font-black uppercase tracking-tight">Admin Portal</CardTitle>
+              <CardDescription className="concierge-text text-accent text-[10px]">Kitchen Management Console</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -77,7 +70,7 @@ export default function AdminLogin() {
                 placeholder="admin" 
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="h-12 border-border focus:border-accent rounded-none"
+                className="h-12 border-border/80 focus:border-accent rounded-none bg-white"
                 required
               />
             </div>
@@ -89,7 +82,7 @@ export default function AdminLogin() {
                 placeholder="••••••••" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-12 border-border focus:border-accent rounded-none"
+                className="h-12 border-border/80 focus:border-accent rounded-none bg-white"
                 required
               />
             </div>
@@ -99,7 +92,7 @@ export default function AdminLogin() {
           </form>
           
           <div className="mt-8 pt-6 border-t border-border/50 text-center">
-            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.25em]">
               Authorized Personnel Only
             </p>
           </div>
