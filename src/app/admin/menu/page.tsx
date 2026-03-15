@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useStore } from "@/hooks/use-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,10 @@ export default function AdminMenuManagement() {
   const [newLunchItem, setNewLunchItem] = useState("");
   const [newDinnerItem, setNewDinnerItem] = useState("");
   
-  // Track which item is currently being edited and its temporary value
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
+  
+  const editContainerRef = useRef<HTMLDivElement | null>(null);
 
   const handleStartEdit = (id: string, currentName: string) => {
     setEditingId(id);
@@ -50,6 +51,21 @@ export default function AdminMenuManagement() {
     removeThaliItem(type, id);
     toast({ title: "Item Removed", description: `${name} removed.` });
   };
+
+  // Close edit mode if clicking outside the active edit area
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (editContainerRef.current && !editContainerRef.current.contains(event.target as Node)) {
+        handleCancelEdit();
+      }
+    }
+    if (editingId) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [editingId]);
 
   return (
     <div className="h-full flex flex-col space-y-4 max-w-5xl mx-auto">
@@ -99,7 +115,11 @@ export default function AdminMenuManagement() {
                 <CardContent className="p-0 overflow-y-auto">
                   <div className="divide-y divide-border/40">
                     {thaliMenu[type].filter(item => item.isCore).map((item) => (
-                      <div key={item.id} className="flex items-center px-4 h-12 hover:bg-secondary/10 group transition-colors relative">
+                      <div 
+                        key={item.id} 
+                        className="flex items-center px-4 h-12 hover:bg-secondary/10 group transition-colors relative"
+                        ref={editingId === item.id ? editContainerRef : null}
+                      >
                         <div className="absolute left-1 opacity-20 group-hover:opacity-60 transition-opacity">
                           <Edit2 className="h-2.5 w-2.5" />
                         </div>
@@ -112,7 +132,7 @@ export default function AdminMenuManagement() {
                             title="Click to edit name"
                           />
                           {editingId === item.id && (
-                            <div className="absolute right-1 flex items-center gap-1">
+                            <div className="absolute right-1 flex items-center gap-1 bg-white pl-1">
                               <Button 
                                 size="icon" 
                                 variant="ghost" 
@@ -154,7 +174,11 @@ export default function AdminMenuManagement() {
                 <CardContent className="p-0 flex flex-col overflow-hidden">
                   <div className="flex-1 overflow-y-auto divide-y divide-border/40">
                     {thaliMenu[type].filter(item => !item.isCore).map((item) => (
-                      <div key={item.id} className="flex items-center group px-4 h-12 hover:bg-secondary/10 transition-colors relative">
+                      <div 
+                        key={item.id} 
+                        className="flex items-center group px-4 h-12 hover:bg-secondary/10 transition-colors relative"
+                        ref={editingId === item.id ? editContainerRef : null}
+                      >
                         <div className="absolute left-1 opacity-20 group-hover:opacity-60 transition-opacity">
                           <Edit2 className="h-2.5 w-2.5" />
                         </div>
@@ -167,7 +191,7 @@ export default function AdminMenuManagement() {
                             title="Click to edit name"
                           />
                           {editingId === item.id && (
-                            <div className="absolute right-1 flex items-center gap-1">
+                            <div className="absolute right-1 flex items-center gap-1 bg-white pl-1">
                               <Button 
                                 size="icon" 
                                 variant="ghost" 
