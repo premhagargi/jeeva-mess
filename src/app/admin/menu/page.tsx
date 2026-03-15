@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Trash2, Plus, Utensils, ListPlus, Edit2 } from "lucide-react";
+import { Trash2, Plus, Utensils, ListPlus, Edit2, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminMenuManagement() {
@@ -15,10 +15,27 @@ export default function AdminMenuManagement() {
   
   const [newLunchItem, setNewLunchItem] = useState("");
   const [newDinnerItem, setNewDinnerItem] = useState("");
+  
+  // Track which item is currently being edited and its temporary value
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [tempValue, setTempValue] = useState("");
 
-  const handleUpdate = (type: 'lunch' | 'dinner', id: string, name: string) => {
-    updateThaliItem(type, id, name);
-    toast({ title: "Updated", description: "Menu item updated successfully." });
+  const handleStartEdit = (id: string, currentName: string) => {
+    setEditingId(id);
+    setTempValue(currentName);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTempValue("");
+  };
+
+  const handleSaveEdit = (type: 'lunch' | 'dinner', id: string) => {
+    if (!tempValue.trim()) return;
+    updateThaliItem(type, id, tempValue);
+    setEditingId(null);
+    setTempValue("");
+    toast({ title: "Updated", description: "Menu item saved successfully." });
   };
 
   const handleAdd = (type: 'lunch' | 'dinner', name: string) => {
@@ -86,15 +103,40 @@ export default function AdminMenuManagement() {
                         <div className="absolute left-1 opacity-20 group-hover:opacity-60 transition-opacity">
                           <Edit2 className="h-2.5 w-2.5" />
                         </div>
-                        <Input 
-                          defaultValue={item.name}
-                          onBlur={(e) => handleUpdate(type, item.id, e.target.value)}
-                          className="h-9 border-transparent bg-transparent hover:border-border/60 hover:bg-white focus:bg-white focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text"
-                          title="Click to edit name"
-                        />
-                        <span className="text-[8px] font-black uppercase tracking-widest text-accent bg-accent/5 px-1.5 py-0.5 border border-accent/10 ml-2 shrink-0">
-                          Fixed
-                        </span>
+                        <div className="relative flex-1 flex items-center">
+                          <Input 
+                            value={editingId === item.id ? tempValue : item.name}
+                            onChange={(e) => setTempValue(e.target.value)}
+                            onFocus={() => handleStartEdit(item.id, item.name)}
+                            className="h-9 border-transparent bg-transparent hover:border-border/60 hover:bg-white focus:bg-white focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text pr-16"
+                            title="Click to edit name"
+                          />
+                          {editingId === item.id && (
+                            <div className="absolute right-1 flex items-center gap-1">
+                              <Button 
+                                size="icon" 
+                                variant="ghost" 
+                                className="h-7 w-7 text-green-600 hover:bg-green-50 hover:text-green-700"
+                                onClick={() => handleSaveEdit(type, item.id)}
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="icon" 
+                                variant="ghost" 
+                                className="h-7 w-7 text-muted-foreground hover:bg-secondary"
+                                onClick={handleCancelEdit}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        {!editingId && (
+                          <span className="text-[8px] font-black uppercase tracking-widest text-accent bg-accent/5 px-1.5 py-0.5 border border-accent/10 ml-2 shrink-0">
+                            Fixed
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -116,20 +158,45 @@ export default function AdminMenuManagement() {
                         <div className="absolute left-1 opacity-20 group-hover:opacity-60 transition-opacity">
                           <Edit2 className="h-2.5 w-2.5" />
                         </div>
-                        <Input 
-                          defaultValue={item.name}
-                          onBlur={(e) => handleUpdate(type, item.id, e.target.value)}
-                          className="h-9 border-transparent bg-transparent hover:border-border/60 hover:bg-white focus:bg-white focus:border-accent text-sm font-medium w-full transition-all px-2 cursor-text"
-                          title="Click to edit name"
-                        />
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5 opacity-0 group-hover:opacity-100 transition-all ml-2"
-                          onClick={() => handleRemove(type, item.id, item.name)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+                        <div className="relative flex-1 flex items-center">
+                          <Input 
+                            value={editingId === item.id ? tempValue : item.name}
+                            onChange={(e) => setTempValue(e.target.value)}
+                            onFocus={() => handleStartEdit(item.id, item.name)}
+                            className="h-9 border-transparent bg-transparent hover:border-border/60 hover:bg-white focus:bg-white focus:border-accent text-sm font-medium w-full transition-all px-2 cursor-text pr-16"
+                            title="Click to edit name"
+                          />
+                          {editingId === item.id && (
+                            <div className="absolute right-1 flex items-center gap-1">
+                              <Button 
+                                size="icon" 
+                                variant="ghost" 
+                                className="h-7 w-7 text-green-600 hover:bg-green-50 hover:text-green-700"
+                                onClick={() => handleSaveEdit(type, item.id)}
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="icon" 
+                                variant="ghost" 
+                                className="h-7 w-7 text-muted-foreground hover:bg-secondary"
+                                onClick={handleCancelEdit}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        {!editingId && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5 opacity-0 group-hover:opacity-100 transition-all ml-2"
+                            onClick={() => handleRemove(type, item.id, item.name)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
                       </div>
                     ))}
                   </div>
