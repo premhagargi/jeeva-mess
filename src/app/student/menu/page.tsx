@@ -21,7 +21,7 @@ export default function StudentMenu() {
     });
   };
 
-  const categories: MenuCategory[] = ['Breakfast', 'Lunch', 'Dinner'];
+  const categories: MenuCategory[] = ['Lunch', 'Dinner'];
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -32,7 +32,7 @@ export default function StudentMenu() {
         <h1 className="text-3xl md:text-[28px]">Today's Menu</h1>
       </header>
 
-      <Tabs defaultValue="Breakfast" className="w-full">
+      <Tabs defaultValue="Lunch" className="w-full">
         <TabsList className="bg-secondary p-1 h-12 w-full md:w-auto mb-8 border border-border">
           {categories.map((cat) => (
             <TabsTrigger 

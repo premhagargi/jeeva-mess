@@ -99,16 +99,16 @@ export default function AdminDashboard() {
           <h3 className="text-xl font-bold">Kitchen Quick Guide</h3>
           <div className="grid gap-4">
             <div className="border border-border p-4 bg-secondary">
-              <h4 className="font-bold uppercase tracking-tight text-sm">Breakfast Rush</h4>
-              <p className="text-xs text-muted-foreground mt-1">High demand for Idli & Dosa expected between 08:00 - 09:30.</p>
+              <h4 className="font-bold uppercase tracking-tight text-sm">Lunch Rush</h4>
+              <p className="text-xs text-muted-foreground mt-1">High demand for Thali expected between 12:30 - 14:00.</p>
             </div>
             <div className="border border-border p-4 bg-secondary">
               <h4 className="font-bold uppercase tracking-tight text-sm">Stock Alert</h4>
               <p className="text-xs text-muted-foreground mt-1">Sambar dal supply running low. Recommended reorder in 24h.</p>
             </div>
             <div className="border border-border p-4 bg-secondary">
-              <h4 className="font-bold uppercase tracking-tight text-sm">Upcoming Event</h4>
-              <p className="text-xs text-muted-foreground mt-1">Sunday Special Thali scheduled for next 48 hours.</p>
+              <h4 className="font-bold uppercase tracking-tight text-sm">Dinner Special</h4>
+              <p className="text-xs text-muted-foreground mt-1">Biryani & Chapati service begins at 19:30.</p>
             </div>
           </div>
         </div>

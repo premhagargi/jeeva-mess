@@ -1,4 +1,4 @@
-export type MenuCategory = 'Breakfast' | 'Lunch' | 'Dinner';
+export type MenuCategory = 'Lunch' | 'Dinner';
 
 export interface MenuItem {
   id: string;
@@ -35,22 +35,6 @@ export interface Order {
 
 export const MENU_ITEMS: MenuItem[] = [
   {
-    id: 'm1',
-    name: 'Idli with Sambar',
-    description: 'Two fluffy rice cakes served with traditional lentil stew.',
-    price: 45,
-    category: 'Breakfast',
-    image: 'https://picsum.photos/seed/idli/400/300'
-  },
-  {
-    id: 'm2',
-    name: 'Masala Dosa',
-    description: 'Crispy rice crepe stuffed with spiced potato filling.',
-    price: 60,
-    category: 'Breakfast',
-    image: 'https://picsum.photos/seed/dosa/400/300'
-  },
-  {
     id: 'm3',
     name: 'South Indian Thali',
     description: 'Rice, Sambar, Rasam, Vegetable Curry, Curd, Pickle & Papad.',
@@ -67,12 +51,20 @@ export const MENU_ITEMS: MenuItem[] = [
     image: 'https://picsum.photos/seed/chapati/400/300'
   },
   {
-    id: 'm5',
-    name: 'Filter Coffee',
-    description: 'Strong, aromatic South Indian decoction milk coffee.',
-    price: 25,
-    category: 'Breakfast',
-    image: 'https://picsum.photos/seed/coffee/400/300'
+    id: 'm6',
+    name: 'Curd Rice Special',
+    description: 'Tempered yogurt rice served with pomegranate and pickle.',
+    price: 70,
+    category: 'Lunch',
+    image: 'https://picsum.photos/seed/curdrice/400/300'
+  },
+  {
+    id: 'm7',
+    name: 'Veg Biryani',
+    description: 'Fragrant basmati rice cooked with garden vegetables and spices.',
+    price: 110,
+    category: 'Dinner',
+    image: 'https://picsum.photos/seed/biryani/400/300'
   }
 ];
 
@@ -86,8 +78,8 @@ export const INITIAL_ORDERS: Order[] = [
     id: 'ORD001',
     studentId: 'STU101',
     studentName: 'Rahul Kumar',
-    items: [{ name: 'Masala Dosa', quantity: 1, price: 60 }, { name: 'Filter Coffee', quantity: 1, price: 25 }],
-    total: 85,
+    items: [{ name: 'South Indian Thali', quantity: 1, price: 120 }],
+    total: 120,
     status: 'Dispatched',
     createdAt: new Date(Date.now() - 86400000).toISOString()
   },
@@ -95,8 +87,8 @@ export const INITIAL_ORDERS: Order[] = [
     id: 'ORD002',
     studentId: 'STU101',
     studentName: 'Rahul Kumar',
-    items: [{ name: 'South Indian Thali', quantity: 1, price: 120 }],
-    total: 120,
+    items: [{ name: 'Chapati with Kurma', quantity: 1, price: 85 }],
+    total: 85,
     status: 'Pending',
     createdAt: new Date().toISOString()
   }

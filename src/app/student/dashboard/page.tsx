@@ -23,7 +23,7 @@ export default function StudentDashboard() {
         {[
           { label: "Plan Status", value: "Premium Active", sub: "Until Dec 30", icon: CalendarDays },
           { label: "Usage", value: `${orders.filter(o => o.studentId === user?.id).length} Orders`, sub: "This month", icon: History },
-          { label: "Today's Special", value: "Masala Dosa", sub: "Breakfast Highlight", icon: UtensilsCrossed },
+          { label: "Today's Special", value: "South Indian Thali", sub: "Lunch Highlight", icon: UtensilsCrossed },
         ].map((stat, i) => (
           <Card key={i} className="border-border shadow-none bg-secondary/50">
             <CardContent className="p-5 space-y-3">
