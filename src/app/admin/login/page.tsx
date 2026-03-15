@@ -90,12 +90,6 @@ export default function AdminLogin() {
               Authorize Access
             </Button>
           </form>
-          
-          <div className="mt-8 pt-6 border-t border-border/50 text-center">
-            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.25em]">
-              Authorized Personnel Only
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
