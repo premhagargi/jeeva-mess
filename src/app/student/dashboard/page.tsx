@@ -13,116 +13,105 @@ export default function StudentDashboard() {
   const latestOrder = orders.find(o => o.studentId === user?.id);
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-8">
       <header className="space-y-1">
-        <p className="concierge-text text-accent">Personal Dashboard</p>
-        <h2 className="text-4xl font-black">Welcome, {user?.name}</h2>
+        <p className="concierge-text text-accent">Member Dashboard</p>
+        <h1 className="text-[28px]">Welcome, {user?.name?.split(' ')[0]}</h1>
       </header>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <Card className="border-border shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="concierge-text">Subscription</CardTitle>
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-black">Active</div>
-            <p className="text-xs text-muted-foreground mt-1">Valid until 30 Dec 2024</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="concierge-text">Order History</CardTitle>
-            <History className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-black">{orders.filter(o => o.studentId === user?.id).length} Orders</div>
-            <p className="text-xs text-muted-foreground mt-1">Total orders placed this month</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="concierge-text">Today's Highlight</CardTitle>
-            <UtensilsCrossed className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-black">Masala Dosa</div>
-            <p className="text-xs text-muted-foreground mt-1">Trending today for breakfast</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { label: "Plan Status", value: "Premium Active", sub: "Until Dec 30", icon: CalendarDays },
+          { label: "Usage", value: `${orders.filter(o => o.studentId === user?.id).length} Orders`, sub: "This month", icon: History },
+          { label: "Today's Special", value: "Masala Dosa", sub: "Breakfast Highlight", icon: UtensilsCrossed },
+        ].map((stat, i) => (
+          <Card key={i} className="border-border shadow-none bg-secondary/50">
+            <CardContent className="p-5 space-y-3">
+              <div className="flex items-center justify-between text-muted-foreground">
+                <p className="text-[10px] font-bold uppercase tracking-widest">{stat.label}</p>
+                <stat.icon className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-xl font-black leading-none">{stat.value}</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">{stat.sub}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="space-y-4">
+      <div className="grid lg:grid-cols-2 gap-10">
+        <section className="space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold">Featured Today</h3>
-            <Link href="/student/menu" className="text-[10px] font-bold uppercase tracking-widest hover:text-accent flex items-center gap-1">
-              View Full Menu <ArrowRight className="h-3 w-3" />
+            <h2 className="text-xl">Featured Meals</h2>
+            <Link href="/student/menu" className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-accent flex items-center gap-1 transition-colors">
+              Full Menu <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
           <div className="grid gap-4">
             {MENU_ITEMS.slice(0, 3).map((item) => (
-              <div key={item.id} className="group border border-border p-4 flex items-center gap-4 hover:border-primary transition-colors">
-                <div className="h-16 w-16 bg-muted flex-shrink-0">
-                  <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+              <div key={item.id} className="group border border-border p-4 flex items-center gap-4 hover:border-primary transition-all cursor-default">
+                <div className="h-16 w-16 bg-muted flex-shrink-0 border border-border">
+                  <img src={item.image} alt={item.name} className="h-full w-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-bold truncate">{item.name}</h4>
-                  <p className="text-xs text-muted-foreground truncate">{item.description}</p>
+                  <h4 className="font-bold truncate text-[16px]">{item.name}</h4>
+                  <p className="text-xs text-muted-foreground truncate uppercase font-bold tracking-widest">{item.category}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-black">₹{item.price}</p>
+                  <p className="font-black text-lg">₹{item.price}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        <div className="space-y-4">
-          <h3 className="text-xl font-bold">Recent Activity</h3>
-          <Card className="border-border shadow-none">
-            <CardContent className="p-0">
-              {latestOrder ? (
-                <div className="p-6 space-y-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="concierge-text text-muted-foreground">Latest Order</p>
-                      <h4 className="font-black text-lg">{latestOrder.id}</h4>
-                    </div>
-                    <span className={cn(
-                      "px-2 py-1 text-[10px] font-bold uppercase tracking-widest",
-                      latestOrder.status === 'Pending' ? "bg-muted text-muted-foreground" : 
-                      latestOrder.status === 'Dispatched' ? "bg-accent text-accent-foreground" : "bg-destructive text-destructive-foreground"
-                    )}>
-                      {latestOrder.status}
-                    </span>
+        <section className="space-y-6">
+          <h2 className="text-xl">Quick Track</h2>
+          {latestOrder ? (
+            <Card className="border-border shadow-none overflow-hidden">
+              <CardContent className="p-0">
+                <div className="p-6 bg-secondary/30 border-b border-border flex justify-between items-center">
+                  <div>
+                    <p className="concierge-text text-muted-foreground">Latest Order</p>
+                    <h4 className="font-black text-lg">{latestOrder.id}</h4>
                   </div>
+                  <span className={cn(
+                    "px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]",
+                    latestOrder.status === 'Pending' ? "bg-muted text-muted-foreground" : 
+                    latestOrder.status === 'Dispatched' ? "bg-accent text-accent-foreground" : "bg-destructive text-destructive-foreground"
+                  )}>
+                    {latestOrder.status}
+                  </span>
+                </div>
+                <div className="p-6 space-y-4">
                   <div className="space-y-2">
-                    {latestOrder.items.map((i, idx) => (
+                    {latestOrder.items.slice(0, 2).map((i, idx) => (
                       <div key={idx} className="flex justify-between text-sm">
-                        <span>{i.quantity}x {i.name}</span>
-                        <span>₹{i.price * i.quantity}</span>
+                        <span className="font-medium">{i.quantity}x {i.name}</span>
+                        <span className="font-bold">₹{i.price * i.quantity}</span>
                       </div>
                     ))}
+                    {latestOrder.items.length > 2 && (
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">+ {latestOrder.items.length - 2} more items</p>
+                    )}
                   </div>
-                  <div className="pt-4 border-t border-border flex justify-between items-center font-bold">
-                    <span>Total Paid</span>
-                    <span>₹{latestOrder.total}</span>
+                  <div className="pt-4 border-t border-border flex justify-between items-center">
+                    <span className="font-bold text-sm">Amount Paid</span>
+                    <span className="font-black text-xl">₹{latestOrder.total}</span>
                   </div>
-                  <Button asChild variant="outline" className="w-full uppercase text-[10px] font-bold tracking-widest">
-                    <Link href="/student/orders">View All History</Link>
+                  <Button asChild className="w-full btn-primary-action">
+                    <Link href="/student/orders">Track in Detail</Link>
                   </Button>
                 </div>
-              ) : (
-                <div className="p-12 text-center text-muted-foreground">
-                  <p className="text-sm">No recent orders found.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="p-12 text-center border border-dashed border-border bg-secondary/20">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No recent meal activity</p>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

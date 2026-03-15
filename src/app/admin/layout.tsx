@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-4 bg-primary text-primary-foreground">
+        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-primary text-primary-foreground px-4">
           <SidebarTrigger className="-ml-1 text-primary-foreground hover:text-accent transition-colors" />
           <div className="flex-1" />
           <div className="flex items-center gap-4">
@@ -44,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-auto bg-background">
+        <div className="flex-1 overflow-auto bg-background layout-container py-8">
           {children}
         </div>
       </SidebarInset>
