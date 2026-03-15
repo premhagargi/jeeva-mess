@@ -10,9 +10,11 @@ export interface MenuItem {
 }
 
 export interface Student {
-  id: string;
+  id: string; // This will be the Serial Number
   name: string;
   email: string;
+  mobile?: string;
+  createdAt?: string;
 }
 
 export type OrderStatus = 'Pending' | 'Dispatched' | 'Cancelled';
@@ -69,14 +71,14 @@ export const MENU_ITEMS: MenuItem[] = [
 ];
 
 export const MOCK_STUDENTS: Student[] = [
-  { id: 'STU101', name: 'Rahul Kumar', email: 'rahul@example.com' },
-  { id: 'STU102', name: 'Priya Sharma', email: 'priya@example.com' }
+  { id: '101', name: 'Rahul Kumar', email: 'rahul@example.com', mobile: '9876543210', createdAt: new Date().toISOString() },
+  { id: '102', name: 'Priya Sharma', email: 'priya@example.com', mobile: '9876543211', createdAt: new Date().toISOString() }
 ];
 
 export const INITIAL_ORDERS: Order[] = [
   {
     id: 'ORD001',
-    studentId: 'STU101',
+    studentId: '101',
     studentName: 'Rahul Kumar',
     items: [{ name: 'South Indian Thali', quantity: 1, price: 120 }],
     total: 120,
@@ -85,7 +87,7 @@ export const INITIAL_ORDERS: Order[] = [
   },
   {
     id: 'ORD002',
-    studentId: 'STU101',
+    studentId: '101',
     studentName: 'Rahul Kumar',
     items: [{ name: 'Chapati with Kurma', quantity: 1, price: 85 }],
     total: 85,

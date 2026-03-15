@@ -10,6 +10,7 @@ interface CartItem extends MenuItem {
 // Simple singleton-like store for the prototype
 let globalCart: CartItem[] = [];
 let globalOrders: Order[] = INITIAL_ORDERS;
+let globalStudents: Student[] = MOCK_STUDENTS;
 let currentUser: Student | null = null;
 let isAdmin: boolean = false;
 
@@ -23,6 +24,7 @@ export function useStore() {
   const [state, setState] = useState({
     cart: globalCart,
     orders: globalOrders,
+    students: globalStudents,
     user: currentUser,
     isAdmin: isAdmin,
   });
@@ -32,6 +34,7 @@ export function useStore() {
       setState({
         cart: [...globalCart],
         orders: [...globalOrders],
+        students: [...globalStudents],
         user: currentUser,
         isAdmin: isAdmin,
       });
@@ -43,7 +46,9 @@ export function useStore() {
   }, []);
 
   const loginAsStudent = (id: string) => {
-    const student = MOCK_STUDENTS.find(s => s.id === id);
+    // Check both STU-prefix and raw ID for convenience in prototype
+    const cleanId = id.replace('STU', '');
+    const student = globalStudents.find(s => s.id === cleanId || s.id === id);
     if (student) {
       currentUser = student;
       isAdmin = false;
@@ -121,6 +126,15 @@ export function useStore() {
     }
   };
 
+  const registerStudent = (student: Student) => {
+    const exists = globalStudents.find(s => s.id === student.id);
+    if (exists) return false;
+    
+    globalStudents = [student, ...globalStudents];
+    notify();
+    return true;
+  };
+
   return {
     ...state,
     addToCart,
@@ -130,6 +144,7 @@ export function useStore() {
     loginAsStudent,
     loginAsAdmin,
     logout,
-    updateOrderStatus
+    updateOrderStatus,
+    registerStudent
   };
 }

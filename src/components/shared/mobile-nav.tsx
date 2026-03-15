@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, UtensilsCrossed, ShoppingCart, History } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, ShoppingCart, History, PackageSearch, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/hooks/use-store";
@@ -10,17 +10,23 @@ export function MobileNav() {
   const pathname = usePathname();
   const { cart, isAdmin } = useStore();
 
-  if (isAdmin) return null;
-
-  const links = [
+  const studentLinks = [
     { title: "Home", href: "/student/dashboard", icon: LayoutDashboard },
     { title: "Menu", href: "/student/menu", icon: UtensilsCrossed },
     { title: "Cart", href: "/student/cart", icon: ShoppingCart, badge: cart.length > 0 ? cart.length : null },
     { title: "Orders", href: "/student/orders", icon: History },
   ];
 
+  const adminLinks = [
+    { title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { title: "Orders", href: "/admin/orders", icon: PackageSearch },
+    { title: "Students", href: "/admin/students", icon: Users },
+  ];
+
+  const links = isAdmin ? adminLinks : studentLinks;
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex md:hidden h-16 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex md:hidden h-16 safe-area-bottom shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
       {links.map((link) => {
         const isActive = pathname === link.href;
         return (
