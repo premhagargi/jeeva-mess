@@ -13,7 +13,7 @@ import {
   DialogTrigger,
   DialogDescription
 } from "@/components/ui/dialog";
-import { CheckCircle2, Copy, Plus, UserPlus, Users, Search, Key, ShieldX, RefreshCcw } from "lucide-react";
+import { CheckCircle2, Copy, Plus, Search, Key, ShieldX, RefreshCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Student } from "@/lib/mock-data";
 
@@ -72,18 +72,18 @@ export default function AdminStudents() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <p className="concierge-text text-accent">Management</p>
-          <h1 className="text-2xl font-black uppercase">Student Registry</h1>
+          <p className="concierge-text text-accent text-[10px]">Registry</p>
+          <h1 className="text-xl font-black uppercase">Students</h1>
         </div>
         
-        <div className="flex items-center gap-3">
-          <div className="relative w-48 sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2">
+          <div className="relative w-40 sm:w-48">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input 
-              placeholder="Search ID/Name..." 
-              className="pl-9 h-11 text-xs font-bold uppercase tracking-widest border-border"
+              placeholder="Search..." 
+              className="pl-8 h-9 text-[11px] font-bold uppercase tracking-widest border-border"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -94,8 +94,8 @@ export default function AdminStudents() {
             if (!open) resetReg();
           }}>
             <DialogTrigger asChild>
-              <Button className="h-11 px-6 btn-primary-action flex items-center gap-2">
-                <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Register</span>
+              <Button size="sm" className="h-9 px-4 btn-primary-action flex items-center gap-1.5">
+                <Plus className="h-3.5 w-3.5" /> <span className="text-[11px] font-black uppercase tracking-widest">Register</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md p-0 overflow-hidden border-none">
@@ -197,32 +197,28 @@ export default function AdminStudents() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {filteredStudents.length === 0 ? (
-          <div className="col-span-full p-20 text-center border border-dashed border-border bg-secondary/20">
-            <p className="concierge-text text-muted-foreground">No records found</p>
+          <div className="col-span-full p-16 text-center border border-dashed border-border bg-secondary/20">
+            <p className="concierge-text text-muted-foreground text-[10px]">No records</p>
           </div>
         ) : (
           filteredStudents.map((student) => (
-            <div key={student.id} className="p-5 bg-white border border-border hover:border-accent transition-all group">
-              <div className="flex justify-between items-start mb-4">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-accent uppercase tracking-widest">STU{student.id}</p>
-                  <h4 className="font-black text-lg leading-tight">{student.name}</h4>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{student.mobile}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Member Since</p>
-                  <p className="text-[11px] font-black">{new Date(student.createdAt!).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}</p>
+            <div key={student.id} className="p-4 bg-white border border-border hover:border-accent transition-all">
+              <div className="flex justify-between items-start mb-2">
+                <div className="min-w-0">
+                  <p className="text-[9px] font-black text-accent uppercase tracking-widest leading-none mb-1">STU{student.id}</p>
+                  <h4 className="font-black text-[14px] leading-tight truncate">{student.name}</h4>
+                  <p className="text-[10px] font-bold text-muted-foreground truncate">{student.mobile}</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2 pt-4 border-t border-border/50">
-                <Button variant="outline" size="sm" className="flex-1 h-9 text-[9px] font-black uppercase tracking-widest border-border hover:bg-secondary">
-                  <RefreshCcw className="h-3 w-3 mr-1.5" /> Reset
+              <div className="flex items-center gap-1.5 pt-3 border-t border-border/50">
+                <Button variant="outline" size="sm" className="flex-1 h-7 text-[8px] font-black uppercase tracking-widest border-border">
+                  Reset
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 h-9 text-[9px] font-black uppercase tracking-widest border-border text-destructive hover:bg-destructive/10">
-                  <ShieldX className="h-3 w-3 mr-1.5" /> Block
+                <Button variant="outline" size="sm" className="flex-1 h-7 text-[8px] font-black uppercase tracking-widest border-border text-destructive hover:bg-destructive/10">
+                  Block
                 </Button>
               </div>
             </div>

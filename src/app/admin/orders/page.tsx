@@ -3,8 +3,7 @@
 import { useStore } from "@/hooks/use-store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { CheckCircle, XCircle, Clock, Package } from "lucide-react";
+import { CheckCircle, XCircle, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminOrders() {
@@ -20,38 +19,36 @@ export default function AdminOrders() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <header className="flex items-center justify-between">
-        <div className="space-y-1">
-          <p className="concierge-text text-accent">Operations Center</p>
-          <h1 className="text-2xl font-black uppercase tracking-tight">Order Registry</h1>
+        <div className="space-y-0.5">
+          <p className="concierge-text text-accent text-[10px]">Operations</p>
+          <h1 className="text-xl font-black uppercase tracking-tight">Active Orders</h1>
         </div>
-        <div className="hidden sm:flex items-center gap-3 bg-secondary px-4 py-2 border border-border">
-          <Package className="h-4 w-4 text-accent" />
-          <span className="text-[11px] font-black uppercase tracking-widest">{orders.length} Active</span>
+        <div className="flex items-center gap-2 bg-secondary px-3 py-1.5 border border-border">
+          <Package className="h-3.5 w-3.5 text-accent" />
+          <span className="text-[10px] font-black uppercase tracking-widest">{orders.length} Total</span>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {orders.length === 0 ? (
-          <div className="col-span-full py-32 text-center border border-dashed border-border bg-secondary/20">
-            <p className="concierge-text text-muted-foreground">Queue is empty</p>
+          <div className="col-span-full py-20 text-center border border-dashed border-border bg-secondary/20">
+            <p className="concierge-text text-muted-foreground text-[10px]">Queue is empty</p>
           </div>
         ) : (
           orders.map((order) => (
-            <div key={order.id} className="bg-white border border-border p-6 space-y-5 flex flex-col group hover:border-accent transition-all">
-              <div className="flex justify-between items-start">
-                <div className="space-y-1">
-                  <h3 className="font-black text-xl text-accent leading-none tracking-tight">{order.id}</h3>
-                  <div className="flex flex-col">
-                    <span className="text-[15px] font-black">{order.studentName}</span>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Student ID: {order.studentId}</span>
-                  </div>
+            <div key={order.id} className="bg-white border border-border p-4 flex flex-col justify-between hover:border-accent transition-all">
+              <div className="flex justify-between items-start mb-2">
+                <div className="min-w-0">
+                  <h3 className="font-black text-sm text-accent truncate">{order.id}</h3>
+                  <p className="text-[13px] font-black truncate">{order.studentName}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">ID: {order.studentId}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-black">₹{order.total}</p>
+                <div className="text-right shrink-0">
+                  <p className="text-lg font-black leading-none">₹{order.total}</p>
                   <span className={cn(
-                    "inline-block mt-2 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full",
+                    "inline-block mt-1.5 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest",
                     order.status === 'Pending' ? "bg-muted text-muted-foreground" : 
                     order.status === 'Dispatched' ? "bg-accent text-accent-foreground" : "bg-destructive text-destructive-foreground"
                   )}>
@@ -60,39 +57,25 @@ export default function AdminOrders() {
                 </div>
               </div>
 
-              <div className="bg-secondary/60 p-4 space-y-2 border-l-4 border-accent/20">
-                {order.items.map((item, idx) => (
-                  <div key={idx} className="flex justify-between text-[13px] font-bold uppercase tracking-tight">
-                    <span>{item.quantity}x {item.name}</span>
-                    <span className="opacity-60">₹{item.price * item.quantity}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-auto pt-4 border-t border-border flex flex-col gap-3">
-                {order.status === 'Pending' ? (
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button 
-                      onClick={() => handleStatusUpdate(order.id, 'Dispatched')} 
-                      className="h-11 bg-accent text-accent-foreground font-black text-[10px] tracking-widest uppercase hover:bg-accent/90"
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" /> Dispatch
-                    </Button>
-                    <Button 
-                      onClick={() => handleStatusUpdate(order.id, 'Cancelled')} 
-                      variant="outline"
-                      className="h-11 border-destructive text-destructive font-black text-[10px] tracking-widest uppercase hover:bg-destructive hover:text-white"
-                    >
-                      <XCircle className="h-4 w-4 mr-2" /> Cancel
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-2 py-2 bg-secondary text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.3em]">Processed {format(new Date(order.createdAt), 'hh:mm a')}</span>
-                  </div>
-                )}
-              </div>
+              {order.status === 'Pending' && (
+                <div className="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-border">
+                  <Button 
+                    onClick={() => handleStatusUpdate(order.id, 'Dispatched')} 
+                    size="sm"
+                    className="h-8 bg-accent text-accent-foreground font-black text-[9px] tracking-widest uppercase"
+                  >
+                    <CheckCircle className="h-3 w-3 mr-1" /> Dispatch
+                  </Button>
+                  <Button 
+                    onClick={() => handleStatusUpdate(order.id, 'Cancelled')} 
+                    variant="outline"
+                    size="sm"
+                    className="h-8 border-destructive text-destructive font-black text-[9px] tracking-widest uppercase hover:bg-destructive hover:text-white"
+                  >
+                    <XCircle className="h-3 w-3 mr-1" /> Cancel
+                  </Button>
+                </div>
+              )}
             </div>
           ))
         )}
