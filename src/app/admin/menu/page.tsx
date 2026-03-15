@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Trash2, Plus, Utensils } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminMenuManagement() {
@@ -41,7 +41,12 @@ export default function AdminMenuManagement() {
           <h1 className="text-xl font-black uppercase tracking-tight leading-none">Menu Console</h1>
         </div>
         <div className="flex items-center gap-2 bg-secondary px-3 py-1.5 border border-border">
-          <Utensils className="h-3.5 w-3.5 text-accent" />
+          <div className="flex items-center justify-center w-2 h-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+          </div>
           <span className="text-[10px] font-black uppercase tracking-widest">Live Kitchen</span>
         </div>
       </header>
