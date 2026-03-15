@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Trash2, Plus, Utensils, ListPlus } from "lucide-react";
+import { Trash2, Plus, Utensils, ListPlus, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminMenuManagement() {
@@ -18,6 +18,7 @@ export default function AdminMenuManagement() {
 
   const handleUpdate = (type: 'lunch' | 'dinner', id: string, name: string) => {
     updateThaliItem(type, id, name);
+    toast({ title: "Updated", description: "Menu item updated successfully." });
   };
 
   const handleAdd = (type: 'lunch' | 'dinner', name: string) => {
@@ -81,11 +82,15 @@ export default function AdminMenuManagement() {
                 <CardContent className="p-0 overflow-y-auto">
                   <div className="divide-y divide-border/40">
                     {thaliMenu[type].filter(item => item.isCore).map((item) => (
-                      <div key={item.id} className="flex items-center px-4 h-12 hover:bg-secondary/10 transition-colors">
+                      <div key={item.id} className="flex items-center px-4 h-12 hover:bg-secondary/10 group transition-colors relative">
+                        <div className="absolute left-1 opacity-0 group-hover:opacity-40 transition-opacity">
+                          <Edit2 className="h-2.5 w-2.5" />
+                        </div>
                         <Input 
                           defaultValue={item.name}
                           onBlur={(e) => handleUpdate(type, item.id, e.target.value)}
-                          className="h-9 border-transparent bg-transparent hover:border-border focus:bg-white text-sm font-bold w-full transition-all px-2"
+                          className="h-9 border-transparent bg-transparent hover:border-border/60 hover:bg-white focus:bg-white focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text"
+                          title="Click to edit name"
                         />
                         <span className="text-[8px] font-black uppercase tracking-widest text-accent bg-accent/5 px-1.5 py-0.5 border border-accent/10 ml-2 shrink-0">
                           Fixed
@@ -107,11 +112,15 @@ export default function AdminMenuManagement() {
                 <CardContent className="p-0 flex flex-col overflow-hidden">
                   <div className="flex-1 overflow-y-auto divide-y divide-border/40">
                     {thaliMenu[type].filter(item => !item.isCore).map((item) => (
-                      <div key={item.id} className="flex items-center group px-4 h-12 hover:bg-secondary/10 transition-colors">
+                      <div key={item.id} className="flex items-center group px-4 h-12 hover:bg-secondary/10 transition-colors relative">
+                        <div className="absolute left-1 opacity-0 group-hover:opacity-40 transition-opacity">
+                          <Edit2 className="h-2.5 w-2.5" />
+                        </div>
                         <Input 
                           defaultValue={item.name}
                           onBlur={(e) => handleUpdate(type, item.id, e.target.value)}
-                          className="h-9 border-transparent bg-transparent hover:border-border focus:bg-white text-sm font-medium w-full transition-all px-2"
+                          className="h-9 border-transparent bg-transparent hover:border-border/60 hover:bg-white focus:bg-white focus:border-accent text-sm font-medium w-full transition-all px-2 cursor-text"
+                          title="Click to edit name"
                         />
                         <Button 
                           variant="ghost" 
@@ -133,7 +142,7 @@ export default function AdminMenuManagement() {
                         value={type === 'lunch' ? newLunchItem : newDinnerItem}
                         onChange={(e) => type === 'lunch' ? setNewLunchItem(e.target.value) : setNewDinnerItem(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAdd(type, type === 'lunch' ? newLunchItem : newDinnerItem)}
-                        className="h-10 bg-white border-border text-[13px] italic px-3"
+                        className="h-10 bg-white border-border text-[13px] italic px-3 focus:ring-1 focus:ring-accent"
                       />
                       <Button 
                         size="icon" 
