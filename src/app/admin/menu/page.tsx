@@ -6,16 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Trash2, Plus, Utensils, ListPlus, Edit2, Check, X } from "lucide-react";
+import { Trash2, Plus, Lock, Edit2, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ThaliItemType } from "@/lib/mock-data";
 
 export default function AdminMenuManagement() {
   const { thaliMenu, updateThaliItem, addThaliItem, removeThaliItem } = useStore();
   const { toast } = useToast();
   
-  const [newLunchItem, setNewLunchItem] = useState("");
-  const [newDinnerItem, setNewDinnerItem] = useState("");
-  
+  const [newItemName, setNewItemName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
   
@@ -39,20 +38,13 @@ export default function AdminMenuManagement() {
     toast({ title: "Updated", description: "Menu item saved successfully." });
   };
 
-  const handleAdd = (type: 'lunch' | 'dinner', name: string) => {
-    if (!name.trim()) return;
-    addThaliItem(type, name);
-    if (type === 'lunch') setNewLunchItem("");
-    else setNewDinnerItem("");
-    toast({ title: "Item Added", description: `${name} added to ${type} menu.` });
+  const handleAddSide = (type: 'lunch' | 'dinner') => {
+    if (!newItemName.trim()) return;
+    addThaliItem(type, newItemName, 'side');
+    setNewItemName("");
+    toast({ title: "Side Added", description: `${newItemName} added to menu.` });
   };
 
-  const handleRemove = (type: 'lunch' | 'dinner', id: string, name: string) => {
-    removeThaliItem(type, id);
-    toast({ title: "Item Removed", description: `${name} removed.` });
-  };
-
-  // Close edit mode if clicking outside the active edit area
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (editContainerRef.current && !editContainerRef.current.contains(event.target as Node)) {
@@ -67,8 +59,94 @@ export default function AdminMenuManagement() {
     };
   }, [editingId]);
 
+  const renderSection = (type: 'lunch' | 'dinner', label: string, itemType: ThaliItemType) => {
+    const items = thaliMenu[type].filter(i => i.type === itemType);
+    const isLocked = itemType === 'rice' || itemType === 'sambar';
+    const isSide = itemType === 'side';
+
+    return (
+      <div className="space-y-1">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1 mb-1">{label}</h3>
+        <div className="divide-y divide-border/40 border border-border/40 bg-white shadow-sm">
+          {items.map((item) => (
+            <div 
+              key={item.id} 
+              className="flex items-center px-3 h-11 hover:bg-secondary/5 group transition-colors relative"
+              ref={editingId === item.id ? editContainerRef : null}
+            >
+              <div className="flex-1 flex items-center min-w-0">
+                {!isLocked ? (
+                  <div className="relative flex-1 flex items-center">
+                    <Input 
+                      value={editingId === item.id ? tempValue : item.name}
+                      onChange={(e) => setTempValue(e.target.value)}
+                      onFocus={() => handleStartEdit(item.id, item.name)}
+                      disabled={isLocked}
+                      className="h-8 border-transparent bg-transparent hover:bg-secondary/10 focus:bg-white focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text pr-16 disabled:cursor-not-allowed disabled:opacity-100"
+                    />
+                    {editingId === item.id && (
+                      <div className="absolute right-1 flex items-center gap-0.5 bg-white pl-1 shadow-[-10px_0_10px_white]">
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="h-7 w-7 text-success hover:bg-success/10"
+                          onClick={() => handleSaveEdit(type, item.id)}
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="h-7 w-7 text-muted-foreground hover:bg-secondary"
+                          onClick={handleCancelEdit}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                    {editingId !== item.id && (
+                      <Edit2 className="h-3 w-3 absolute right-2 opacity-20 group-hover:opacity-60 pointer-events-none transition-opacity" />
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between w-full px-2">
+                    <span className="text-sm font-bold text-muted-foreground/80">{item.name}</span>
+                    <Lock className="h-3 w-3 text-muted-foreground/40" />
+                  </div>
+                )}
+              </div>
+              
+              {isSide && !editingId && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5 opacity-0 group-hover:opacity-100 transition-all ml-1"
+                  onClick={() => removeThaliItem(type, item.id)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+          ))}
+          {isSide && (
+            <div className="flex items-center px-3 h-11 bg-secondary/20">
+              <Plus className="h-3.5 w-3.5 text-muted-foreground mr-2" />
+              <Input 
+                placeholder="Add Side..."
+                value={newItemName}
+                onChange={(e) => setNewItemName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddSide(type)}
+                className="h-8 border-transparent bg-transparent focus:bg-white text-xs italic px-2 w-full transition-all"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="h-full flex flex-col space-y-4 max-w-5xl mx-auto">
+    <div className="h-full flex flex-col space-y-4 max-w-4xl mx-auto overflow-hidden">
       <header className="flex items-center justify-between shrink-0 px-1">
         <div className="space-y-0.5">
           <p className="concierge-text text-accent text-[10px]">Operations Console</p>
@@ -87,165 +165,28 @@ export default function AdminMenuManagement() {
 
       <Tabs defaultValue="lunch" className="flex-1 flex flex-col min-h-0">
         <TabsList className="bg-secondary p-1 h-11 w-full border border-border shrink-0">
-          <TabsTrigger 
-            value="lunch" 
-            className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[11px]"
-          >
-            Lunch Service
+          <TabsTrigger value="lunch" className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[11px]">
+            Lunch Thali
           </TabsTrigger>
-          <TabsTrigger 
-            value="dinner" 
-            className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[11px]"
-          >
-            Dinner Service
+          <TabsTrigger value="dinner" className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[11px]">
+            Dinner Thali
           </TabsTrigger>
         </TabsList>
 
         {(['lunch', 'dinner'] as const).map((type) => (
-          <TabsContent key={type} value={type} className="flex-1 m-0 pt-4 focus-visible:outline-none overflow-hidden">
-            <div className="grid md:grid-cols-2 gap-4 h-full pb-4">
-              {/* Main Selection Card */}
-              <Card className="border-border shadow-none flex flex-col overflow-hidden">
-                <CardHeader className="py-3 px-4 bg-secondary/30 border-b border-border flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Utensils className="h-3 w-3 text-accent" /> Main Selection
-                  </CardTitle>
-                  <span className="text-[9px] font-bold text-muted-foreground uppercase">Core Items</span>
-                </CardHeader>
-                <CardContent className="p-0 overflow-y-auto">
-                  <div className="divide-y divide-border/40">
-                    {thaliMenu[type].filter(item => item.isCore).map((item) => (
-                      <div 
-                        key={item.id} 
-                        className="flex items-center px-4 h-12 hover:bg-secondary/10 group transition-colors relative"
-                        ref={editingId === item.id ? editContainerRef : null}
-                      >
-                        <div className="absolute left-1 opacity-20 group-hover:opacity-60 transition-opacity">
-                          <Edit2 className="h-2.5 w-2.5" />
-                        </div>
-                        <div className="relative flex-1 flex items-center">
-                          <Input 
-                            value={editingId === item.id ? tempValue : item.name}
-                            onChange={(e) => setTempValue(e.target.value)}
-                            onFocus={() => handleStartEdit(item.id, item.name)}
-                            className="h-9 border-transparent bg-transparent hover:border-border/60 hover:bg-white focus:bg-white focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text pr-16"
-                            title="Click to edit name"
-                          />
-                          {editingId === item.id && (
-                            <div className="absolute right-1 flex items-center gap-1 bg-white pl-1">
-                              <Button 
-                                size="icon" 
-                                variant="ghost" 
-                                className="h-7 w-7 text-green-600 hover:bg-green-50 hover:text-green-700"
-                                onClick={() => handleSaveEdit(type, item.id)}
-                              >
-                                <Check className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                size="icon" 
-                                variant="ghost" 
-                                className="h-7 w-7 text-muted-foreground hover:bg-secondary"
-                                onClick={handleCancelEdit}
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                        {!editingId && (
-                          <span className="text-[8px] font-black uppercase tracking-widest text-accent bg-accent/5 px-1.5 py-0.5 border border-accent/10 ml-2 shrink-0">
-                            Fixed
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Sides & Extras Card */}
-              <Card className="border-border shadow-none flex flex-col overflow-hidden">
-                <CardHeader className="py-3 px-4 bg-secondary/30 border-b border-border flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                    <ListPlus className="h-3 w-3 text-accent" /> Accompaniments
-                  </CardTitle>
-                  <span className="text-[9px] font-bold text-muted-foreground uppercase">Customizable</span>
-                </CardHeader>
-                <CardContent className="p-0 flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-y-auto divide-y divide-border/40">
-                    {thaliMenu[type].filter(item => !item.isCore).map((item) => (
-                      <div 
-                        key={item.id} 
-                        className="flex items-center group px-4 h-12 hover:bg-secondary/10 transition-colors relative"
-                        ref={editingId === item.id ? editContainerRef : null}
-                      >
-                        <div className="absolute left-1 opacity-20 group-hover:opacity-60 transition-opacity">
-                          <Edit2 className="h-2.5 w-2.5" />
-                        </div>
-                        <div className="relative flex-1 flex items-center">
-                          <Input 
-                            value={editingId === item.id ? tempValue : item.name}
-                            onChange={(e) => setTempValue(e.target.value)}
-                            onFocus={() => handleStartEdit(item.id, item.name)}
-                            className="h-9 border-transparent bg-transparent hover:border-border/60 hover:bg-white focus:bg-white focus:border-accent text-sm font-medium w-full transition-all px-2 cursor-text pr-16"
-                            title="Click to edit name"
-                          />
-                          {editingId === item.id && (
-                            <div className="absolute right-1 flex items-center gap-1 bg-white pl-1">
-                              <Button 
-                                size="icon" 
-                                variant="ghost" 
-                                className="h-7 w-7 text-green-600 hover:bg-green-50 hover:text-green-700"
-                                onClick={() => handleSaveEdit(type, item.id)}
-                              >
-                                <Check className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                size="icon" 
-                                variant="ghost" 
-                                className="h-7 w-7 text-muted-foreground hover:bg-secondary"
-                                onClick={handleCancelEdit}
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                        {!editingId && (
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5 opacity-0 group-hover:opacity-100 transition-all ml-2"
-                            onClick={() => handleRemove(type, item.id, item.name)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Sticky Footer Add Input */}
-                  <div className="p-3 bg-secondary/20 border-t border-border mt-auto">
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        placeholder="Add side item (e.g. Papad)..."
-                        value={type === 'lunch' ? newLunchItem : newDinnerItem}
-                        onChange={(e) => type === 'lunch' ? setNewLunchItem(e.target.value) : setNewDinnerItem(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleAdd(type, type === 'lunch' ? newLunchItem : newDinnerItem)}
-                        className="h-10 bg-white border-border text-[13px] italic px-3 focus:ring-1 focus:ring-accent"
-                      />
-                      <Button 
-                        size="icon" 
-                        className="h-10 w-10 bg-primary hover:bg-accent shrink-0"
-                        onClick={() => handleAdd(type, type === 'lunch' ? newLunchItem : newDinnerItem)}
-                      >
-                        <Plus className="h-5 w-5" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          <TabsContent key={type} value={type} className="flex-1 m-0 pt-4 focus-visible:outline-none overflow-y-auto pb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+              <div className="space-y-6">
+                {renderSection(type, "Bhaa ji (2 Slots)", 'bhaji')}
+                {renderSection(type, "Bread", 'bread')}
+              </div>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 gap-6">
+                  {renderSection(type, "Rice", 'rice')}
+                  {renderSection(type, "Sambar", 'sambar')}
+                </div>
+                {renderSection(type, "Sides", 'side')}
+              </div>
             </div>
           </TabsContent>
         ))}

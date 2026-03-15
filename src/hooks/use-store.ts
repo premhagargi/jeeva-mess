@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Order, MenuItem, INITIAL_ORDERS, Student, MOCK_STUDENTS, ThaliMenu, ThaliItem, INITIAL_THALI_MENU } from '@/lib/mock-data';
+import { Order, MenuItem, INITIAL_ORDERS, Student, MOCK_STUDENTS, ThaliMenu, ThaliItem, INITIAL_THALI_MENU, ThaliItemType } from '@/lib/mock-data';
 
 interface CartItem extends MenuItem {
   quantity: number;
@@ -147,11 +147,11 @@ export function useStore() {
     }
   };
 
-  const addThaliItem = (type: 'lunch' | 'dinner', name: string) => {
+  const addThaliItem = (type: 'lunch' | 'dinner', name: string, itemType: ThaliItemType = 'side') => {
     const newItem: ThaliItem = {
       id: Math.random().toString(36).substr(2, 9),
       name,
-      isCore: false
+      type: itemType
     };
     globalThaliMenu[type].push(newItem);
     globalThaliMenu = { ...globalThaliMenu };
@@ -161,7 +161,7 @@ export function useStore() {
   const removeThaliItem = (type: 'lunch' | 'dinner', itemId: string) => {
     const items = globalThaliMenu[type];
     const item = items.find(i => i.id === itemId);
-    if (item && !item.isCore) {
+    if (item && item.type === 'side') {
       globalThaliMenu[type] = items.filter(i => i.id !== itemId);
       globalThaliMenu = { ...globalThaliMenu };
       notify();

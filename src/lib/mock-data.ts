@@ -9,10 +9,12 @@ export interface MenuItem {
   image: string;
 }
 
+export type ThaliItemType = 'bhaji' | 'bread' | 'rice' | 'sambar' | 'side';
+
 export interface ThaliItem {
   id: string;
   name: string;
-  isCore?: boolean;
+  type: ThaliItemType;
 }
 
 export interface ThaliMenu {
@@ -83,22 +85,22 @@ export const MENU_ITEMS: MenuItem[] = [
 
 export const INITIAL_THALI_MENU: ThaliMenu = {
   lunch: [
-    { id: 'l1', name: 'Aloo Methi', isCore: true },
-    { id: 'l2', name: 'Dal Fry', isCore: true },
-    { id: 'l3', name: 'Steamed Rice', isCore: true },
-    { id: 'l4', name: 'Hot Sambar', isCore: true },
-    { id: 'l5', name: 'Chapati (2x)', isCore: false },
-    { id: 'l6', name: 'Onion & Lemon', isCore: false },
-    { id: 'l7', name: 'Mango Pickle', isCore: false },
+    { id: 'l1', name: 'Aloo Bhaji', type: 'bhaji' },
+    { id: 'l2', name: 'Beans Palya', type: 'bhaji' },
+    { id: 'l3', name: 'Chapati', type: 'bread' },
+    { id: 'l4', name: 'Steamed Rice', type: 'rice' },
+    { id: 'l5', name: 'Vegetable Sambar', type: 'sambar' },
+    { id: 'l6', name: 'Onion', type: 'side' },
+    { id: 'l7', name: 'Carrot', type: 'side' },
   ],
   dinner: [
-    { id: 'd1', name: 'Mixed Veg Kurma', isCore: true },
-    { id: 'd2', name: 'Baingan Bharta', isCore: true },
-    { id: 'd3', name: 'Jeera Rice', isCore: true },
-    { id: 'd4', name: 'Hot Sambar', isCore: true },
-    { id: 'd5', name: 'Bhakri (1x)', isCore: false },
-    { id: 'd6', name: 'Carrot Salad', isCore: false },
-    { id: 'd7', name: 'Thecha', isCore: false },
+    { id: 'd1', name: 'Mixed Veg Kurma', type: 'bhaji' },
+    { id: 'd2', name: 'Paneer Masala', type: 'bhaji' },
+    { id: 'd3', name: 'Bhakri', type: 'bread' },
+    { id: 'd4', name: 'Jeera Rice', type: 'rice' },
+    { id: 'd5', name: 'Dal Tadka', type: 'sambar' },
+    { id: 'd6', name: 'Salad', type: 'side' },
+    { id: 'd7', name: 'Thecha', type: 'side' },
   ]
 };
 

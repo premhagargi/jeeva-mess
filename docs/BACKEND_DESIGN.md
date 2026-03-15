@@ -45,7 +45,7 @@ Configuration for Lunch and Dinner services.
 - `items`: array of objects
   - `id`: string
   - `name`: string
-  - `isCore`: boolean
+  - `type`: "bhaji" | "bread" | "rice" | "sambar" | "side"
 
 ---
 
@@ -59,12 +59,14 @@ Routes will be located in `src/app/api/`.
 
 ### Menu Management
 - `GET /api/menu`: Fetches the current Lunch and Dinner thali configurations.
-- `PATCH /api/menu/[type]`: Updates items within a specific thali (Lunch/Dinner).
+- `PATCH /api/menu/[type]/item/[id]`: Updates a specific item within a thali.
+- `POST /api/menu/[type]/item`: Adds a new item (usually side).
+- `DELETE /api/menu/[type]/item/[id]`: Removes a side item.
 
 ### Order Operations
 - `GET /api/orders`: (Admin) Retrieves all orders with optional status filters.
 - `POST /api/orders`: (Student) Places a new order from the cart.
-- `PATCH /api/orders/[id]`: (Admin) Updates order status (e.g., to "Dispatched").
+- `PATCH /api/orders/[id]`: (Admin) Updates order status.
 
 ### Student Management
 - `POST /api/students/register`: (Admin) Onboards a new student.
