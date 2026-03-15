@@ -193,11 +193,6 @@ export default function AdminStudents() {
         </Dialog>
       </div>
 
-      <header>
-        <p className="concierge-text text-accent text-[10px]">Registry</p>
-        <h1 className="text-xl font-black uppercase">Students</h1>
-      </header>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {filteredStudents.length === 0 ? (
           <div className="col-span-full p-12 text-center border border-dashed border-border bg-secondary/20">
