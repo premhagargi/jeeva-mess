@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -14,7 +13,7 @@ import {
   DialogTrigger,
   DialogDescription
 } from "@/components/ui/dialog";
-import { CheckCircle2, Copy, Plus, Search, Key } from "lucide-react";
+import { CheckCircle2, Copy, Plus, Search, Key, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Student } from "@/lib/mock-data";
 
@@ -200,19 +199,16 @@ export default function AdminStudents() {
           </div>
         ) : (
           filteredStudents.map((student) => (
-            <div key={student.id} className="p-4 bg-white border border-border hover:border-accent transition-all flex flex-col justify-between">
-              <div>
+            <div key={student.id} className="p-4 bg-white border border-border hover:border-accent transition-all flex items-center justify-between gap-4">
+              <div className="min-w-0 flex-1">
                 <p className="text-[9px] font-black text-accent uppercase tracking-widest leading-none mb-1">STU{student.id}</p>
                 <h4 className="font-black text-[14px] leading-tight truncate">{student.name}</h4>
                 <p className="text-[10px] font-bold text-muted-foreground truncate">{student.mobile}</p>
               </div>
               
-              <div className="flex items-center gap-1.5 pt-3 mt-3 border-t border-border/50">
-                <Button variant="outline" size="sm" className="flex-1 h-7 text-[8px] font-black uppercase tracking-widest border-border hover:bg-secondary">
-                  Reset
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1 h-7 text-[8px] font-black uppercase tracking-widest border-border text-destructive hover:bg-destructive/10">
-                  Block
+              <div className="shrink-0">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-accent transition-colors">
+                  <Edit2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
