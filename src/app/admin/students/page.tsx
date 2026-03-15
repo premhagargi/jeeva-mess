@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CheckCircle2, Copy, Plus, UserPlus, Users, Search } from "lucide-react";
+import { CheckCircle2, Copy, Plus, UserPlus, Users, Search, ShieldCheck, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Student } from "@/lib/mock-data";
@@ -28,7 +28,6 @@ export default function AdminStudents() {
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
     if (formData.serialNumber.length < 3 || formData.serialNumber.length > 4) {
       toast({ variant: "destructive", title: "Invalid Serial", description: "Serial number must be 3 or 4 digits." });
       return;
@@ -73,66 +72,74 @@ export default function AdminStudents() {
   );
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <header className="space-y-1">
+    <div className="space-y-10">
+      <header className="flex flex-col gap-1">
         <p className="concierge-text text-accent">Member Management</p>
-        <h1 className="text-[28px]">Student Registry</h1>
+        <h1 className="text-[28px] font-black">Student Registry</h1>
       </header>
 
-      <div className="grid lg:grid-cols-2 gap-8 items-start">
+      <div className="flex flex-col gap-12 max-w-[520px] mx-auto">
         {/* Registration Section */}
-        <section className="space-y-6">
-          <h2 className="text-xl flex items-center gap-2">
-            <UserPlus className="h-5 w-5 text-accent" /> Register New
-          </h2>
-          
+        <section className="w-full">
           {!isSuccess ? (
-            <Card className="border-border shadow-none">
-              <CardHeader>
-                <CardDescription className="concierge-text">Onboard fresh members</CardDescription>
+            <Card className="border-border shadow-none bg-white">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-2 text-accent mb-1">
+                  <UserPlus className="h-5 w-5" />
+                  <span className="concierge-text">Fast Onboarding</span>
+                </div>
+                <CardTitle className="text-xl">Register New Student</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleRegister} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="serialNumber">Student Serial Number (3-4 Digits)</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="serialNumber" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Student Serial (3-4 Digits)</Label>
                     <Input 
                       id="serialNumber" 
                       placeholder="e.g. 2401" 
                       type="number"
+                      className="h-12 text-[15px] px-3.5"
                       value={formData.serialNumber}
                       onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
                       required
                     />
-                    {formData.serialNumber && (formData.serialNumber.length < 3 || formData.serialNumber.length > 4) && (
-                      <p className="text-[10px] font-bold text-destructive uppercase tracking-widest">Must be 3 or 4 digits</p>
+                    {formData.serialNumber && (
+                      <div className="flex items-center gap-2 bg-secondary/50 p-2 border border-border mt-2 animate-in fade-in slide-in-from-top-1">
+                        <Key className="h-3 w-3 text-muted-foreground" />
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                          Default Pass: <span className="text-foreground">{formData.serialNumber}@123</span>
+                        </p>
+                      </div>
                     )}
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
                     <Input 
                       id="name" 
                       placeholder="e.g. Rahul Kumar" 
+                      className="h-12 text-[15px] px-3.5"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="mobile">Mobile Number</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="mobile" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Mobile Number</Label>
                     <Input 
                       id="mobile" 
                       placeholder="e.g. 9876543210" 
                       type="tel"
+                      className="h-12 text-[15px] px-3.5"
                       value={formData.mobile}
                       onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                       required
                     />
                   </div>
 
-                  <Button type="submit" className="w-full h-12 btn-primary-action">
-                    Register Student
+                  <Button type="submit" className="w-full h-[52px] btn-primary-action mt-2">
+                    Register Member
                   </Button>
                 </form>
               </CardContent>
@@ -146,7 +153,7 @@ export default function AdminStudents() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black">Registration Success</h3>
+                  <h3 className="text-2xl font-black">Success</h3>
                   <p className="concierge-text text-muted-foreground">{registeredStudent.name}</p>
                 </div>
                 
@@ -176,15 +183,15 @@ export default function AdminStudents() {
 
         {/* List Section */}
         <section className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl flex items-center gap-2">
-              <Users className="h-5 w-5 text-accent" /> Existing Members
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <h2 className="text-xl flex items-center gap-2 font-black">
+              <Users className="h-5 w-5 text-accent" /> Members
             </h2>
-            <div className="relative w-40 sm:w-60">
+            <div className="relative w-40 sm:w-48">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
-                placeholder="Search..." 
-                className="pl-9 h-10 text-xs"
+                placeholder="Find..." 
+                className="pl-9 h-10 text-xs font-bold uppercase tracking-widest"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -198,15 +205,18 @@ export default function AdminStudents() {
               </div>
             ) : (
               filteredStudents.map((student) => (
-                <div key={student.id} className="p-4 bg-background border border-border flex items-center justify-between group hover:border-accent transition-colors">
+                <div key={student.id} className="p-4 bg-white border border-border flex items-center justify-between group hover:border-accent transition-all cursor-default">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-black text-accent uppercase tracking-widest">ID: {student.id}</p>
+                    <p className="text-[10px] font-black text-accent uppercase tracking-widest">STU{student.id}</p>
                     <h4 className="font-bold text-[16px]">{student.name}</h4>
-                    <p className="text-xs text-muted-foreground">{student.mobile}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{student.mobile}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Joined</p>
-                    <p className="text-xs font-bold">{new Date(student.createdAt!).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Member Since</p>
+                    <p className="text-xs font-bold">{new Date(student.createdAt!).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}</p>
+                    <div className="mt-2 flex gap-2">
+                      <button className="text-[10px] font-bold text-accent uppercase hover:underline">Reset</button>
+                    </div>
                   </div>
                 </div>
               ))

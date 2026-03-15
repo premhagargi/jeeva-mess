@@ -55,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-auto bg-background layout-container py-8">
+        <div className="flex-1 overflow-auto bg-background layout-container py-6 px-4 md:py-10">
           {children}
         </div>
         <MobileNav />
