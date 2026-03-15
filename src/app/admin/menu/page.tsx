@@ -83,7 +83,7 @@ export default function AdminMenuManagement() {
                   <div className="divide-y divide-border/40">
                     {thaliMenu[type].filter(item => item.isCore).map((item) => (
                       <div key={item.id} className="flex items-center px-4 h-12 hover:bg-secondary/10 group transition-colors relative">
-                        <div className="absolute left-1 opacity-0 group-hover:opacity-40 transition-opacity">
+                        <div className="absolute left-1 opacity-20 group-hover:opacity-60 transition-opacity">
                           <Edit2 className="h-2.5 w-2.5" />
                         </div>
                         <Input 
@@ -113,7 +113,7 @@ export default function AdminMenuManagement() {
                   <div className="flex-1 overflow-y-auto divide-y divide-border/40">
                     {thaliMenu[type].filter(item => !item.isCore).map((item) => (
                       <div key={item.id} className="flex items-center group px-4 h-12 hover:bg-secondary/10 transition-colors relative">
-                        <div className="absolute left-1 opacity-0 group-hover:opacity-40 transition-opacity">
+                        <div className="absolute left-1 opacity-20 group-hover:opacity-60 transition-opacity">
                           <Edit2 className="h-2.5 w-2.5" />
                         </div>
                         <Input 
