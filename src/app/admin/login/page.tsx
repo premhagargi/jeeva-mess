@@ -33,66 +33,76 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-primary relative overflow-hidden">
-      {/* Abstract Background Decoration */}
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#050505] relative overflow-hidden">
+      {/* Dynamic Abstract Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Deep Glows using Brand Accent */}
-        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full bg-accent/10 blur-[100px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] rounded-full bg-accent/10 blur-[100px]" />
+        {/* Primary Ambient Glow */}
+        <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] rounded-full bg-accent/20 blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-accent/15 blur-[100px]" />
         
-        {/* Subtle Geometric Lines */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.04]" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <circle cx="10" cy="10" r="30" fill="none" stroke="white" strokeWidth="0.1" />
-          <circle cx="90" cy="90" r="40" fill="none" stroke="white" strokeWidth="0.1" />
-          <line x1="0" y1="20" x2="100" y2="80" stroke="white" strokeWidth="0.05" />
-          <line x1="20" y1="0" x2="80" y2="100" stroke="white" strokeWidth="0.05" />
-        </svg>
+        {/* Radial Mesh Effect */}
+        <div className="absolute inset-0 opacity-20" 
+             style={{ background: 'radial-gradient(circle at 50% 50%, transparent 0%, #000 100%)' }} />
 
-        {/* Subtle Dot Pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" 
-             style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+        {/* Subtle Geometric Grid */}
+        <div className="absolute inset-0 opacity-[0.05]" 
+             style={{ backgroundImage: 'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+
+        {/* Moving Light Particles (CSS Only) */}
+        <div className="absolute top-1/4 left-1/3 w-1 h-1 bg-white rounded-full blur-[2px] opacity-40 animate-ping" />
+        <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-white rounded-full blur-[2px] opacity-30 animate-ping [animation-delay:1s]" />
       </div>
 
-      <Card className="w-full max-w-md border-border shadow-2xl bg-background relative z-10">
+      <Card className="w-full max-w-md border-border/50 shadow-2xl bg-background/95 backdrop-blur-sm relative z-10 rounded-none">
         <CardHeader className="space-y-4">
-          <Link href="/" className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:text-accent transition-colors">
-            <ArrowLeft className="h-3 w-3" /> Back
+          <Link href="/" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] hover:text-accent transition-colors">
+            <ArrowLeft className="h-3 w-3" /> Back to Home
           </Link>
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="h-8 w-8 text-accent" />
+          <div className="flex items-center gap-3 pt-2">
+            <div className="p-2 bg-accent/10">
+              <ShieldCheck className="h-8 w-8 text-accent" />
+            </div>
             <div className="space-y-1">
-              <CardTitle className="text-3xl font-black">Admin Portal</CardTitle>
-              <CardDescription className="concierge-text">Kitchen Management Access</CardDescription>
+              <CardTitle className="text-3xl font-black uppercase tracking-tighter">Admin Portal</CardTitle>
+              <CardDescription className="concierge-text text-accent">Kitchen Control Center</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username">Admin Username</Label>
+              <Label htmlFor="username" className="text-[10px] font-black uppercase tracking-widest opacity-70">Admin Username</Label>
               <Input 
                 id="username" 
                 placeholder="admin" 
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                className="h-12 border-border focus:border-accent rounded-none"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Security Key</Label>
+              <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest opacity-70">Security Key</Label>
               <Input 
                 id="password" 
                 type="password" 
                 placeholder="••••••••" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="h-12 border-border focus:border-accent rounded-none"
                 required
               />
             </div>
-            <Button type="submit" className="w-full h-12 text-sm font-bold uppercase tracking-widest bg-primary hover:bg-accent transition-all">
-              Authorize
+            <Button type="submit" className="w-full h-14 text-sm font-black uppercase tracking-[0.2em] bg-primary hover:bg-accent transition-all rounded-none group">
+              Authorize Access
             </Button>
           </form>
+          
+          <div className="mt-8 pt-6 border-t border-border/50 text-center">
+            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+              Authorized Personnel Only
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
