@@ -26,7 +26,7 @@ export function MobileNav() {
   const links = isAdmin ? adminLinks : studentLinks;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex md:hidden h-[72px] pb-[safe-area-inset-bottom] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex md:hidden h-[60px] pb-[safe-area-inset-bottom] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] px-2">
       {links.map((link) => {
         const isActive = pathname === link.href;
         return (
@@ -34,25 +34,25 @@ export function MobileNav() {
             key={link.href}
             href={link.href}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-1.5 transition-all duration-200",
+              "flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-200",
               isActive ? "text-accent" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <div className="relative">
-              <link.icon className={cn("h-5 w-5 transition-transform", isActive && "scale-110")} />
+              <link.icon className={cn("h-[22px] w-[22px] transition-transform", isActive && "scale-110")} />
               {link.badge && (
-                <span className="absolute -top-1.5 -right-2 bg-accent text-accent-foreground text-[9px] px-1 font-black min-w-[15px] h-[15px] flex items-center justify-center border border-background">
+                <span className="absolute -top-1.5 -right-2 bg-accent text-accent-foreground text-[9px] px-1 font-black min-w-[16px] h-[16px] flex items-center justify-center border border-background">
                   {link.badge}
                 </span>
               )}
             </div>
             <span className={cn(
-              "text-[10px] font-black uppercase tracking-wider transition-all",
-              isActive ? "opacity-100" : "opacity-70"
+              "text-[9px] font-black uppercase tracking-[0.1em] transition-all",
+              isActive ? "opacity-100 font-black" : "opacity-70"
             )}>
               {link.title}
             </span>
-            {isActive && <div className="absolute top-0 w-8 h-[3px] bg-accent animate-in fade-in duration-300" />}
+            {isActive && <div className="absolute top-0 w-10 h-[3px] bg-accent animate-in fade-in duration-300" />}
           </Link>
         );
       })}
