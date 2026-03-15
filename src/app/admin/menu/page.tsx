@@ -4,9 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { useStore } from "@/hooks/use-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Trash2, Plus, Lock, Edit2, Check, X } from "lucide-react";
+import { Trash2, Plus, Edit2, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ThaliItemType } from "@/lib/mock-data";
 
@@ -61,7 +60,6 @@ export default function AdminMenuManagement() {
 
   const renderSection = (type: 'lunch' | 'dinner', label: string, itemType: ThaliItemType) => {
     const items = thaliMenu[type].filter(i => i.type === itemType);
-    const isLocked = itemType === 'rice' || itemType === 'sambar';
     const isSide = itemType === 'side';
 
     return (
@@ -75,45 +73,37 @@ export default function AdminMenuManagement() {
               ref={editingId === item.id ? editContainerRef : null}
             >
               <div className="flex-1 flex items-center min-w-0">
-                {!isLocked ? (
-                  <div className="relative flex-1 flex items-center">
-                    <Input 
-                      value={editingId === item.id ? tempValue : item.name}
-                      onChange={(e) => setTempValue(e.target.value)}
-                      onFocus={() => handleStartEdit(item.id, item.name)}
-                      disabled={isLocked}
-                      className="h-8 border-transparent bg-transparent hover:bg-secondary/10 focus:bg-white focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text pr-16 disabled:cursor-not-allowed disabled:opacity-100"
-                    />
-                    {editingId === item.id && (
-                      <div className="absolute right-1 flex items-center gap-0.5 bg-white pl-1 shadow-[-10px_0_10px_white]">
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
-                          className="h-7 w-7 text-success hover:bg-success/10"
-                          onClick={() => handleSaveEdit(type, item.id)}
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
-                          className="h-7 w-7 text-muted-foreground hover:bg-secondary"
-                          onClick={handleCancelEdit}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-                    {editingId !== item.id && (
-                      <Edit2 className="h-3 w-3 absolute right-2 opacity-20 group-hover:opacity-60 pointer-events-none transition-opacity" />
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between w-full px-2">
-                    <span className="text-sm font-bold text-muted-foreground/80">{item.name}</span>
-                    <Lock className="h-3 w-3 text-muted-foreground/40" />
-                  </div>
-                )}
+                <div className="relative flex-1 flex items-center">
+                  <Input 
+                    value={editingId === item.id ? tempValue : item.name}
+                    onChange={(e) => setTempValue(e.target.value)}
+                    onFocus={() => handleStartEdit(item.id, item.name)}
+                    className="h-8 border-transparent bg-transparent hover:bg-secondary/10 focus:bg-white focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text pr-16"
+                  />
+                  {editingId === item.id && (
+                    <div className="absolute right-1 flex items-center gap-0.5 bg-white pl-1 shadow-[-10px_0_10px_white] z-10">
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="h-7 w-7 text-success hover:bg-success/10"
+                        onClick={() => handleSaveEdit(type, item.id)}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="h-7 w-7 text-muted-foreground hover:bg-secondary"
+                        onClick={handleCancelEdit}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                  {editingId !== item.id && (
+                    <Edit2 className="h-3.5 w-3.5 absolute right-2 opacity-20 group-hover:opacity-60 pointer-events-none transition-opacity" />
+                  )}
+                </div>
               </div>
               
               {isSide && !editingId && (
@@ -177,15 +167,15 @@ export default function AdminMenuManagement() {
           <TabsContent key={type} value={type} className="flex-1 m-0 pt-4 focus-visible:outline-none overflow-y-auto pb-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="space-y-6">
-                {renderSection(type, "Bhaa ji (2 Slots)", 'bhaji')}
-                {renderSection(type, "Bread", 'bread')}
+                {renderSection(type, "BHAAJI (2 Slots)", 'bhaji')}
+                {renderSection(type, "BREAD", 'bread')}
               </div>
               <div className="space-y-6">
                 <div className="grid grid-cols-1 gap-6">
-                  {renderSection(type, "Rice", 'rice')}
-                  {renderSection(type, "Sambar", 'sambar')}
+                  {renderSection(type, "RICE", 'rice')}
+                  {renderSection(type, "SAMBAR", 'sambar')}
                 </div>
-                {renderSection(type, "Sides", 'side')}
+                {renderSection(type, "SIDES", 'side')}
               </div>
             </div>
           </TabsContent>
