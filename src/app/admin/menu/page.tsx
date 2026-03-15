@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useStore } from "@/hooks/use-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Utensils, ListPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminMenuManagement() {
@@ -34,11 +34,11 @@ export default function AdminMenuManagement() {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
-      <header className="flex items-center justify-between">
+    <div className="h-full flex flex-col space-y-4 max-w-5xl mx-auto">
+      <header className="flex items-center justify-between shrink-0 px-1">
         <div className="space-y-0.5">
-          <p className="concierge-text text-accent text-[10px]">Operations</p>
-          <h1 className="text-xl font-black uppercase tracking-tight leading-none">Menu Console</h1>
+          <p className="concierge-text text-accent text-[10px]">Operations Console</p>
+          <h1 className="text-xl font-black uppercase tracking-tight leading-none">Menu Management</h1>
         </div>
         <div className="flex items-center gap-2 bg-secondary px-3 py-1.5 border border-border">
           <div className="flex items-center justify-center w-2 h-2">
@@ -47,46 +47,72 @@ export default function AdminMenuManagement() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-widest">Live Kitchen</span>
+          <span className="text-[10px] font-black uppercase tracking-widest">Live Students Menu</span>
         </div>
       </header>
 
-      <Tabs defaultValue="lunch" className="w-full">
-        <TabsList className="bg-secondary p-1 h-11 w-full border border-border mb-4">
+      <Tabs defaultValue="lunch" className="flex-1 flex flex-col min-h-0">
+        <TabsList className="bg-secondary p-1 h-11 w-full border border-border shrink-0">
           <TabsTrigger 
             value="lunch" 
-            className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[10px]"
+            className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[11px]"
           >
-            Lunch Thali
+            Lunch Service
           </TabsTrigger>
           <TabsTrigger 
             value="dinner" 
-            className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[10px]"
+            className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[11px]"
           >
-            Dinner Thali
+            Dinner Service
           </TabsTrigger>
         </TabsList>
 
         {(['lunch', 'dinner'] as const).map((type) => (
-          <TabsContent key={type} value={type} className="m-0 focus-visible:outline-none">
-            <Card className="border-border shadow-none overflow-hidden">
-              <CardContent className="p-0">
-                <div className="divide-y divide-border/50">
-                  {thaliMenu[type].map((item) => (
-                    <div key={item.id} className="flex items-center group px-4 h-11 hover:bg-secondary/20 transition-colors">
-                      <div className="flex-1 flex items-center gap-3">
+          <TabsContent key={type} value={type} className="flex-1 m-0 pt-4 focus-visible:outline-none overflow-hidden">
+            <div className="grid md:grid-cols-2 gap-4 h-full pb-4">
+              {/* Main Selection Card */}
+              <Card className="border-border shadow-none flex flex-col overflow-hidden">
+                <CardHeader className="py-3 px-4 bg-secondary/30 border-b border-border flex flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Utensils className="h-3 w-3 text-accent" /> Main Selection
+                  </CardTitle>
+                  <span className="text-[9px] font-bold text-muted-foreground uppercase">Core Items</span>
+                </CardHeader>
+                <CardContent className="p-0 overflow-y-auto">
+                  <div className="divide-y divide-border/40">
+                    {thaliMenu[type].filter(item => item.isCore).map((item) => (
+                      <div key={item.id} className="flex items-center px-4 h-12 hover:bg-secondary/10 transition-colors">
                         <Input 
                           defaultValue={item.name}
                           onBlur={(e) => handleUpdate(type, item.id, e.target.value)}
-                          className="h-8 border-transparent bg-transparent hover:border-border focus:bg-white text-sm font-medium w-full max-w-md transition-all px-2"
+                          className="h-9 border-transparent bg-transparent hover:border-border focus:bg-white text-sm font-bold w-full transition-all px-2"
                         />
-                        {item.isCore && (
-                          <span className="text-[8px] font-black uppercase tracking-widest text-accent bg-accent/10 px-1.5 py-0.5 border border-accent/20 shrink-0">
-                            Core
-                          </span>
-                        )}
+                        <span className="text-[8px] font-black uppercase tracking-widest text-accent bg-accent/5 px-1.5 py-0.5 border border-accent/10 ml-2 shrink-0">
+                          Fixed
+                        </span>
                       </div>
-                      {!item.isCore && (
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Sides & Extras Card */}
+              <Card className="border-border shadow-none flex flex-col overflow-hidden">
+                <CardHeader className="py-3 px-4 bg-secondary/30 border-b border-border flex flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                    <ListPlus className="h-3 w-3 text-accent" /> Accompaniments
+                  </CardTitle>
+                  <span className="text-[9px] font-bold text-muted-foreground uppercase">Customizable</span>
+                </CardHeader>
+                <CardContent className="p-0 flex flex-col overflow-hidden">
+                  <div className="flex-1 overflow-y-auto divide-y divide-border/40">
+                    {thaliMenu[type].filter(item => !item.isCore).map((item) => (
+                      <div key={item.id} className="flex items-center group px-4 h-12 hover:bg-secondary/10 transition-colors">
+                        <Input 
+                          defaultValue={item.name}
+                          onBlur={(e) => handleUpdate(type, item.id, e.target.value)}
+                          className="h-9 border-transparent bg-transparent hover:border-border focus:bg-white text-sm font-medium w-full transition-all px-2"
+                        />
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -95,41 +121,35 @@ export default function AdminMenuManagement() {
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* Add Item Row */}
-                  <div className="flex items-center px-4 h-11 bg-secondary/10">
-                    <Input 
-                      placeholder="Add side item..."
-                      value={type === 'lunch' ? newLunchItem : newDinnerItem}
-                      onChange={(e) => type === 'lunch' ? setNewLunchItem(e.target.value) : setNewDinnerItem(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleAdd(type, type === 'lunch' ? newLunchItem : newDinnerItem)}
-                      className="h-8 border-dashed border-border bg-transparent text-sm italic px-2"
-                    />
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 text-accent ml-2 hover:bg-accent/10"
-                      onClick={() => handleAdd(type, type === 'lunch' ? newLunchItem : newDinnerItem)}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+
+                  {/* Sticky Footer Add Input */}
+                  <div className="p-3 bg-secondary/20 border-t border-border mt-auto">
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        placeholder="Add side item (e.g. Papad)..."
+                        value={type === 'lunch' ? newLunchItem : newDinnerItem}
+                        onChange={(e) => type === 'lunch' ? setNewLunchItem(e.target.value) : setNewDinnerItem(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAdd(type, type === 'lunch' ? newLunchItem : newDinnerItem)}
+                        className="h-10 bg-white border-border text-[13px] italic px-3"
+                      />
+                      <Button 
+                        size="icon" 
+                        className="h-10 w-10 bg-primary hover:bg-accent shrink-0"
+                        onClick={() => handleAdd(type, type === 'lunch' ? newLunchItem : newDinnerItem)}
+                      >
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         ))}
       </Tabs>
-
-      <div className="pt-4 space-y-2">
-        <div className="h-px bg-border w-12 mx-auto" />
-        <p className="text-[9px] text-muted-foreground text-center uppercase tracking-[0.2em] font-bold">
-          Operational changes reflect instantly across the student network
-        </p>
-      </div>
     </div>
   );
 }
