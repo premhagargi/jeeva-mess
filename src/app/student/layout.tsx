@@ -36,26 +36,26 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
       <div className="hidden md:block">
         <AppSidebar />
       </div>
-      <SidebarInset className="pb-20 md:pb-0">
-        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="layout-container w-full flex items-center justify-between">
+      <SidebarInset className="pb-[68px] md:pb-0">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="w-full flex items-center justify-between px-3 sm:px-4 md:px-6">
             <div className="flex items-center gap-2">
               <div className="md:hidden">
-                <h1 className="text-xl font-black">Jeeva</h1>
+                <h1 className="text-lg font-black uppercase tracking-tight">Jeeva Eats</h1>
               </div>
               <div className="hidden md:block">
                 <SidebarTrigger className="-ml-1" />
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden sm:block">
-                <p className="concierge-text text-muted-foreground">Member</p>
-                <p className="text-sm font-bold">{user?.name || "Administrator"}</p>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className="concierge-text text-muted-foreground text-[9px]">Member</p>
+                <p className="text-xs font-bold hidden sm:block">{user?.name || "Administrator"}</p>
               </div>
             </div>
           </div>
         </header>
-        <div className="flex-1 layout-container py-6 md:py-8">
+        <div className="flex-1 px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 max-w-[1440px] mx-auto w-full">
           {children}
         </div>
         <MobileNav />

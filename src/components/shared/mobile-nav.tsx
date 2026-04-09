@@ -27,7 +27,7 @@ export function MobileNav() {
   const links = isAdmin ? adminLinks : studentLinks;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex md:hidden h-[60px] pb-[safe-area-inset-bottom] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex md:hidden h-[68px] pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] px-1 sm:px-2">
       {links.map((link) => {
         const isActive = pathname === link.href;
         return (
