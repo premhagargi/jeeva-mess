@@ -213,8 +213,19 @@ export function useStore() {
     const cleanId = serialNumber.replace('STU', '');
     const email = `${cleanId}@jeeva.eats`;
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      return true;
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      // Wait for user state to resolve before returning
+      const student = await getStudentByEmail(cred.user.email || '');
+      if (student) {
+        currentUser = student;
+        isAdmin = false;
+        currentAdmin = null;
+        saveAuthCache({ user: currentUser, admin: null, isAdmin: false });
+        authLoading = false;
+        notify();
+        return true;
+      }
+      return false;
     } catch {
       return false;
     }
@@ -223,11 +234,18 @@ export function useStore() {
   const loginAsAdmin = useCallback(async (email: string, password: string): Promise<boolean> => {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      const adminDoc = await getAdminByUid(cred.user.uid);
-      if (!adminDoc) {
+      // Wait for admin state to resolve before returning
+      const admin = await getAdminByUid(cred.user.uid);
+      if (!admin) {
         await signOut(auth);
         return false;
       }
+      currentAdmin = admin;
+      isAdmin = true;
+      currentUser = null;
+      saveAuthCache({ user: null, admin: currentAdmin, isAdmin: true });
+      authLoading = false;
+      notify();
       return true;
     } catch {
       return false;

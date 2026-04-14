@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { PasswordInput } from "@/components/shared/password-input";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
@@ -63,13 +64,12 @@ export default function StudentLogin() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-11 sm:h-10"
+                className="h-11 sm:h-10 pr-10"
                 required
               />
             </div>

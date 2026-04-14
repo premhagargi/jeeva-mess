@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, ShieldCheck, Loader2, Crown, ChefHat, Package } from "lucide-react";
+import { PasswordInput } from "@/components/shared/password-input";
 import { useToast } from "@/hooks/use-toast";
 import { AdminRole } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
@@ -115,10 +116,9 @@ export default function AdminManagement() {
 
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold opacity-70">Password</Label>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     placeholder="Min 6 characters"
-                    className="h-11 sm:h-12 border-border"
+                    className="h-11 sm:h-12 border-border pr-10"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     required

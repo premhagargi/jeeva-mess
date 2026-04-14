@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ShieldCheck, Loader2 } from "lucide-react";
+import { PasswordInput } from "@/components/shared/password-input";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
@@ -76,13 +77,12 @@ export default function AdminLogin() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password" className="text-xs font-bold opacity-70">Security Key</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-11 sm:h-12 border-border/80 focus:border-accent rounded-none bg-white"
+                className="h-11 sm:h-12 border-border/80 focus:border-accent rounded-none bg-white pr-10"
                 required
               />
             </div>
