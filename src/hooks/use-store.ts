@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, getSecondaryAuth } from '@/lib/firebase';
 import {
@@ -25,7 +25,42 @@ interface CartItem extends MenuItem {
   quantity: number;
 }
 
+// ─── localStorage cache helpers ───────────────────────────────
+
+const CACHE_KEY = 'jeeva_auth_cache';
+
+interface AuthCache {
+  user: Student | null;
+  admin: Admin | null;
+  isAdmin: boolean;
+}
+
+function loadAuthCache(): AuthCache | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveAuthCache(cache: AuthCache) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  } catch {}
+}
+
+function clearAuthCache() {
+  try {
+    localStorage.removeItem(CACHE_KEY);
+  } catch {}
+}
+
 // ─── Global state ─────────────────────────────────────────────
+
+// Restore auth from cache instantly (no waiting for Firebase)
+const cached = typeof window !== 'undefined' ? loadAuthCache() : null;
 
 let globalCart: CartItem[] = [];
 let globalOrders: Order[] = [];
@@ -35,16 +70,24 @@ let globalThaliMenu: ThaliMenu = { lunch: [], dinner: [] };
 let globalAdmins: Admin[] = [];
 let globalDashboardConfig: DashboardConfig | null = null;
 
-let currentUser: Student | null = null;
-let currentAdmin: Admin | null = null;
-let isAdmin = false;
-let authLoading = true;
+let currentUser: Student | null = cached?.user ?? null;
+let currentAdmin: Admin | null = cached?.admin ?? null;
+let isAdmin = cached?.isAdmin ?? false;
+// If we have cached auth, skip the loading state entirely
+let authLoading = !cached;
 let dataLoading = true;
 
 const listeners = new Set<() => void>();
 
+// Batched notify: coalesces rapid-fire updates into one render
+let notifyScheduled = false;
 function notify() {
-  listeners.forEach((l) => l());
+  if (notifyScheduled) return;
+  notifyScheduled = true;
+  queueMicrotask(() => {
+    notifyScheduled = false;
+    listeners.forEach((l) => l());
+  });
 }
 
 // ─── Firestore initialization (runs once) ─────────────────────
@@ -56,7 +99,7 @@ function initFirestoreListeners() {
   if (initialized) return;
   initialized = true;
 
-  // Data listeners
+  // Data listeners - all fire from local cache first (instant), then sync
   unsubscribers.push(
     subscribeMenuItems((items) => {
       globalMenuItems = items;
@@ -89,25 +132,28 @@ function initFirestoreListeners() {
   unsubscribers.push(
     onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Check if admin
-        const adminDoc = await getAdminByUid(firebaseUser.uid);
+        // Check admin first (faster path for admin users)
+        const [adminDoc, student] = await Promise.all([
+          getAdminByUid(firebaseUser.uid),
+          getStudentByEmail(firebaseUser.email || ''),
+        ]);
+
         if (adminDoc) {
           currentAdmin = adminDoc;
           isAdmin = true;
           currentUser = null;
-        } else {
-          // Check if student
-          const student = await getStudentByEmail(firebaseUser.email || '');
-          if (student) {
-            currentUser = student;
-            isAdmin = false;
-            currentAdmin = null;
-          }
+        } else if (student) {
+          currentUser = student;
+          isAdmin = false;
+          currentAdmin = null;
         }
+
+        saveAuthCache({ user: currentUser, admin: currentAdmin, isAdmin });
       } else {
         currentUser = null;
         currentAdmin = null;
         isAdmin = false;
+        clearAuthCache();
       }
       authLoading = false;
       notify();
@@ -115,10 +161,10 @@ function initFirestoreListeners() {
   );
 }
 
-// ─── Hook ─────────────────────────────────────────────────────
+// ─── State snapshot (avoids creating new objects on every render) ──
 
-export function useStore() {
-  const [state, setState] = useState({
+function getSnapshot() {
+  return {
     cart: globalCart,
     orders: globalOrders,
     students: globalStudents,
@@ -131,39 +177,26 @@ export function useStore() {
     isAdmin,
     authLoading,
     dataLoading,
-  });
+  };
+}
+
+// ─── Hook ─────────────────────────────────────────────────────
+
+export function useStore() {
+  const [state, setState] = useState(getSnapshot);
 
   useEffect(() => {
     initFirestoreListeners();
 
-    const handleUpdate = () => {
-      setState({
-        cart: [...globalCart],
-        orders: [...globalOrders],
-        students: [...globalStudents],
-        menuItems: [...globalMenuItems],
-        thaliMenu: { ...globalThaliMenu },
-        admins: [...globalAdmins],
-        dashboardConfig: globalDashboardConfig,
-        user: currentUser,
-        admin: currentAdmin,
-        isAdmin,
-        authLoading,
-        dataLoading,
-      });
-    };
-
+    const handleUpdate = () => setState(getSnapshot());
     listeners.add(handleUpdate);
-    // Sync immediately in case data loaded before this component mounted
     handleUpdate();
-    return () => {
-      listeners.delete(handleUpdate);
-    };
+    return () => { listeners.delete(handleUpdate); };
   }, []);
 
   // ── Auth actions ──────────────────────────────────────────
 
-  const loginAsStudent = async (serialNumber: string, password: string): Promise<boolean> => {
+  const loginAsStudent = useCallback(async (serialNumber: string, password: string): Promise<boolean> => {
     const cleanId = serialNumber.replace('STU', '');
     const email = `${cleanId}@jeeva.eats`;
     try {
@@ -172,9 +205,9 @@ export function useStore() {
     } catch {
       return false;
     }
-  };
+  }, []);
 
-  const loginAsAdmin = async (email: string, password: string): Promise<boolean> => {
+  const loginAsAdmin = useCallback(async (email: string, password: string): Promise<boolean> => {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
       const adminDoc = await getAdminByUid(cred.user.uid);
@@ -186,41 +219,48 @@ export function useStore() {
     } catch {
       return false;
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     globalCart = [];
+    clearAuthCache();
+    currentUser = null;
+    currentAdmin = null;
+    isAdmin = false;
+    notify();
     await signOut(auth);
-  };
+  }, []);
 
-  // ── Cart actions (client-side only) ───────────────────────
+  // ── Cart actions (client-side only, instant) ──────────────
 
-  const addToCart = (item: MenuItem) => {
+  const addToCart = useCallback((item: MenuItem) => {
     const existing = globalCart.find((i) => i.id === item.id);
     if (existing) {
       existing.quantity += 1;
+      globalCart = [...globalCart];
     } else {
-      globalCart.push({ ...item, quantity: 1 });
+      globalCart = [...globalCart, { ...item, quantity: 1 }];
     }
     notify();
-  };
+  }, []);
 
-  const removeFromCart = (id: string) => {
+  const removeFromCart = useCallback((id: string) => {
     globalCart = globalCart.filter((i) => i.id !== id);
     notify();
-  };
+  }, []);
 
-  const updateQuantity = (id: string, delta: number) => {
+  const updateQuantity = useCallback((id: string, delta: number) => {
     const item = globalCart.find((i) => i.id === id);
     if (item) {
       item.quantity = Math.max(1, item.quantity + delta);
+      globalCart = [...globalCart];
       notify();
     }
-  };
+  }, []);
 
-  // ── Order actions ─────────────────────────────────────────
+  // ── Order actions (optimistic) ────────────────────────────
 
-  const placeOrder = async (): Promise<Order | null> => {
+  const placeOrder = useCallback(async (): Promise<Order | null> => {
     if (globalCart.length === 0 || !currentUser) return null;
 
     const orderData = {
@@ -232,52 +272,58 @@ export function useStore() {
       createdAt: new Date().toISOString(),
     };
 
-    const id = await createOrder(orderData);
+    // Optimistic: clear cart immediately
     globalCart = [];
     notify();
+
+    const id = await createOrder(orderData);
     return { id, ...orderData };
-  };
+  }, []);
 
-  const updateOrderStatus = async (orderId: string, status: Order['status']) => {
+  const updateOrderStatus = useCallback(async (orderId: string, status: Order['status']) => {
+    // Optimistic: update local state immediately
+    const order = globalOrders.find(o => o.id === orderId);
+    if (order) {
+      order.status = status;
+      globalOrders = [...globalOrders];
+      notify();
+    }
     await updateOrderStatusDoc(orderId, status);
-  };
+  }, []);
 
-  // ── Student registration (from admin panel) ───────────────
+  // ── Student registration ──────────────────────────────────
 
-  const registerStudent = async (student: Student): Promise<{ success: boolean; password?: string }> => {
+  const registerStudent = useCallback(async (student: Student): Promise<{ success: boolean; password?: string }> => {
     const exists = globalStudents.find(s => s.id === student.id);
     if (exists) return { success: false };
 
-    // Generate random 8-char alphanumeric password
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
     const password = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
     const email = `${student.id}@jeeva.eats`;
 
     try {
-      // Create Firebase Auth user using secondary app (so admin stays logged in)
       const secondaryAuth = getSecondaryAuth();
       await createUserWithEmailAndPassword(secondaryAuth, email, password);
       await secondaryAuth.signOut();
-
-      // Create Firestore student doc
       await addStudentDoc({ ...student, email });
-
       return { success: true, password };
     } catch {
       return { success: false };
     }
-  };
+  }, []);
 
-  // ── Thali menu actions ────────────────────────────────────
+  // ── Thali menu actions (optimistic) ───────────────────────
 
-  const updateThaliItem = async (type: 'lunch' | 'dinner', itemId: string, newName: string) => {
-    const items = globalThaliMenu[type];
-    const updated = items.map(i => i.id === itemId ? { ...i, name: newName } : i);
+  const updateThaliItem = useCallback(async (type: 'lunch' | 'dinner', itemId: string, newName: string) => {
+    const updated = globalThaliMenu[type].map(i => i.id === itemId ? { ...i, name: newName } : i);
     const newMenu = { ...globalThaliMenu, [type]: updated };
+    // Optimistic
+    globalThaliMenu = newMenu;
+    notify();
     await saveThaliMenu(newMenu);
-  };
+  }, []);
 
-  const addThaliItem = async (type: 'lunch' | 'dinner', name: string, itemType: ThaliItemType = 'side') => {
+  const addThaliItem = useCallback(async (type: 'lunch' | 'dinner', name: string, itemType: ThaliItemType = 'side') => {
     const newItem: ThaliItem = {
       id: Math.random().toString(36).substr(2, 9),
       name,
@@ -287,21 +333,26 @@ export function useStore() {
       ...globalThaliMenu,
       [type]: [...globalThaliMenu[type], newItem],
     };
+    // Optimistic
+    globalThaliMenu = newMenu;
+    notify();
     await saveThaliMenu(newMenu);
-  };
+  }, []);
 
-  const removeThaliItem = async (type: 'lunch' | 'dinner', itemId: string) => {
-    const items = globalThaliMenu[type];
+  const removeThaliItem = useCallback(async (type: 'lunch' | 'dinner', itemId: string) => {
     const newMenu = {
       ...globalThaliMenu,
-      [type]: items.filter(i => i.id !== itemId),
+      [type]: globalThaliMenu[type].filter(i => i.id !== itemId),
     };
+    // Optimistic
+    globalThaliMenu = newMenu;
+    notify();
     await saveThaliMenu(newMenu);
-  };
+  }, []);
 
   // ── Admin management ──────────────────────────────────────
 
-  const registerAdmin = async (name: string, email: string, password: string, role: AdminRole): Promise<boolean> => {
+  const registerAdmin = useCallback(async (name: string, email: string, password: string, role: AdminRole): Promise<boolean> => {
     try {
       const secondaryAuth = getSecondaryAuth();
       const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
@@ -319,7 +370,7 @@ export function useStore() {
     } catch {
       return false;
     }
-  };
+  }, []);
 
   return {
     ...state,
