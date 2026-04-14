@@ -2,7 +2,6 @@ import type {Metadata, Viewport} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ServiceWorkerRegistrar } from "@/components/shared/sw-register";
-import { SplashScreen } from "@/components/shared/splash-screen";
 import { InstallPrompt } from "@/components/shared/install-prompt";
 
 export const metadata: Metadata = {
@@ -41,7 +40,6 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased selection:bg-accent selection:text-accent-foreground">
-        <SplashScreen />
         {children}
         <Toaster />
         <InstallPrompt />

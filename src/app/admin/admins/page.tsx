@@ -82,7 +82,7 @@ export default function AdminManagement() {
                 <span className="text-xs sm:text-sm font-bold">Add Admin</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md p-0 overflow-hidden border-none">
+            <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md p-0 overflow-y-auto max-h-[90vh] border-none">
               <div className="bg-primary p-4 sm:p-6 text-primary-foreground">
                 <DialogTitle className="text-xl sm:text-2xl font-bold">New Admin</DialogTitle>
                 <DialogDescription className="text-primary-foreground/70 font-bold text-xs mt-1">

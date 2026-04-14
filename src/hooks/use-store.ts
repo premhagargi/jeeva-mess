@@ -302,7 +302,7 @@ export function useStore() {
     const orderData = {
       studentId: currentUser.id,
       studentName: currentUser.name,
-      items: globalCart.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })),
+      items: globalCart.map(i => ({ name: i.name, quantity: i.quantity, price: i.price, description: i.description })),
       total: globalCart.reduce((sum, i) => sum + i.price * i.quantity, 0),
       status: 'Pending' as const,
       createdAt: new Date().toISOString(),

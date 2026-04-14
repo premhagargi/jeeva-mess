@@ -1,9 +1,38 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Utensils, ShieldCheck, ArrowRight } from "lucide-react";
+import { useStore } from "@/hooks/use-store";
 
 export default function Home() {
+  const { user, admin, isAdmin, authLoading } = useStore();
+  const router = useRouter();
+  const [redirecting, setRedirecting] = useState(false);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (isAdmin && admin) {
+      setRedirecting(true);
+      router.replace("/admin/dashboard");
+    } else if (user) {
+      setRedirecting(true);
+      router.replace("/student/dashboard");
+    }
+  }, [user, admin, isAdmin, authLoading, router]);
+
+  if (authLoading || redirecting) {
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <h1 className="text-3xl font-bold">Jeeva Eats</h1>
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-6 space-y-8 sm:space-y-12">

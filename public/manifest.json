@@ -4,7 +4,7 @@
   "description": "Premium student mess service - order meals, manage subscriptions",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FBF5E8",
+  "background_color": "#C8850A",
   "theme_color": "#C8850A",
   "orientation": "portrait-primary",
   "icons": [

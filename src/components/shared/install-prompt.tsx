@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Download, X, CheckCircle2 } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function InstallPrompt() {
@@ -15,7 +15,7 @@ export function InstallPrompt() {
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true;
     if (isStandalone) return;
-    if (sessionStorage.getItem('install_dismissed')) return;
+    if (localStorage.getItem('install_dismissed')) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -48,7 +48,7 @@ export function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowBanner(false);
-    sessionStorage.setItem('install_dismissed', '1');
+    localStorage.setItem('install_dismissed', '1');
   };
 
   // Success toast after installation
@@ -56,12 +56,12 @@ export function InstallPrompt() {
     return (
       <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:w-[360px] z-[200] animate-in slide-in-from-bottom-4 fade-in duration-300">
         <div className="bg-card border border-border p-4 shadow-lg rounded-lg flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
+          <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+            <Download className="h-5 w-5 text-amber-600 animate-bounce" />
           </div>
           <div>
-            <p className="font-bold text-sm">Jeeva Eats installed!</p>
-            <p className="text-xs text-muted-foreground">The app is now on your home screen. Open it anytime like a regular app.</p>
+            <p className="font-bold text-sm">Installing Jeeva Eats...</p>
+            <p className="text-xs text-muted-foreground">The app is being added to your home screen.</p>
           </div>
         </div>
       </div>

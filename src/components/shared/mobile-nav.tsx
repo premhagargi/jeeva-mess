@@ -23,6 +23,7 @@ export function MobileNav() {
     { title: "Orders", href: "/admin/orders", icon: PackageSearch, roles: ['super_admin', 'kitchen_manager', 'order_manager'] },
     { title: "Menu", href: "/admin/menu", icon: Utensils, roles: ['super_admin', 'kitchen_manager'] },
     { title: "Students", href: "/admin/students", icon: Users, roles: ['super_admin', 'kitchen_manager'] },
+    { title: "Admins", href: "/admin/admins", icon: ShieldCheck, roles: ['super_admin'] },
   ];
 
   const adminLinks = allAdminLinks.filter(l => !role || l.roles.includes(role));
@@ -30,7 +31,7 @@ export function MobileNav() {
   const links = isAdmin ? adminLinks : studentLinks;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex md:hidden h-[68px] pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] px-1 sm:px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border flex md:hidden h-[68px] pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] px-0">
       {links.map((link) => {
         const isActive = pathname === link.href;
         return (
@@ -38,12 +39,12 @@ export function MobileNav() {
             key={link.href}
             href={link.href}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-200",
+              "flex-1 min-w-0 flex flex-col items-center justify-center gap-0.5 transition-all duration-200 px-1",
               isActive ? "text-accent" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <div className="relative">
-              <link.icon className={cn("h-[22px] w-[22px] transition-transform", isActive && "scale-110")} />
+              <link.icon className={cn("h-5 w-5 transition-transform", isActive && "scale-110")} />
               {link.badge && (
                 <span className="absolute -top-1.5 -right-2 bg-accent text-accent-foreground text-xs px-1 font-bold min-w-[16px] h-[16px] flex items-center justify-center border border-background">
                   {link.badge}
@@ -51,12 +52,12 @@ export function MobileNav() {
               )}
             </div>
             <span className={cn(
-              "text-xs font-bold transition-all",
-              isActive ? "opacity-100 font-bold" : "opacity-70"
+              "text-[10px] leading-tight font-bold transition-all truncate w-full text-center",
+              isActive ? "opacity-100" : "opacity-70"
             )}>
               {link.title}
             </span>
-            {isActive && <div className="absolute top-0 w-10 h-[3px] bg-accent animate-in fade-in duration-300" />}
+            {isActive && <div className="absolute top-0 w-8 h-[3px] bg-accent animate-in fade-in duration-300" />}
           </Link>
         );
       })}
