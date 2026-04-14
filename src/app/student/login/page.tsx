@@ -7,27 +7,31 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
 export default function StudentLogin() {
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const { loginAsStudent } = useStore();
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginAsStudent(studentId)) {
+    setLoading(true);
+    const success = await loginAsStudent(studentId, password);
+    setLoading(false);
+    if (success) {
       toast({ title: "Welcome back!", description: "Successfully logged into student portal." });
       router.push("/student/dashboard");
     } else {
-      toast({ 
-        variant: "destructive", 
-        title: "Login Failed", 
-        description: "Invalid Student ID (Try STU101 or STU102)" 
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "Invalid Student ID or password."
       });
     }
   };
@@ -36,11 +40,11 @@ export default function StudentLogin() {
     <div className="min-h-screen flex items-center justify-center px-4 py-8 sm:p-6 bg-secondary">
       <Card className="w-full max-w-md border-border shadow-none">
         <CardHeader className="space-y-3 sm:space-y-4 p-4 sm:p-6">
-          <Link href="/" className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:text-accent transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-xs font-bold hover:text-accent transition-colors">
             <ArrowLeft className="h-3 w-3" /> Back
           </Link>
           <div className="space-y-1">
-            <CardTitle className="text-2xl sm:text-3xl font-black">Student Portal</CardTitle>
+            <CardTitle className="text-2xl sm:text-3xl font-bold">Student Portal</CardTitle>
             <CardDescription className="concierge-text">Subscription Member Access</CardDescription>
           </div>
         </CardHeader>
@@ -50,7 +54,7 @@ export default function StudentLogin() {
               <Label htmlFor="studentId">Student ID</Label>
               <Input
                 id="studentId"
-                placeholder="STU101"
+                placeholder="e.g. 2401 or STU2401"
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
                 className="h-11 sm:h-10"
@@ -69,8 +73,12 @@ export default function StudentLogin() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full h-12 text-sm font-bold uppercase tracking-widest bg-primary hover:bg-accent transition-all active:scale-[0.98]">
-              Sign In
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 text-sm font-bold bg-primary hover:bg-accent transition-all active:scale-[0.98]"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In"}
             </Button>
           </form>
           <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-border text-center">

@@ -19,7 +19,7 @@ export default function StudentOrders() {
       {studentOrders.length === 0 ? (
         <div className="h-[50vh] sm:h-[60vh] flex flex-col items-center justify-center space-y-4 border border-border border-dashed p-8 sm:p-12">
           <ShoppingBag className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground" />
-          <p className="text-muted-foreground font-medium uppercase tracking-widest text-[10px]">No orders found in history</p>
+          <p className="text-muted-foreground font-medium text-xs">No orders found in history</p>
         </div>
       ) : (
         <div className="grid gap-3 sm:gap-4">
@@ -29,13 +29,13 @@ export default function StudentOrders() {
                 <div className="flex-1 space-y-3 sm:space-y-4">
                   <div className="flex items-center justify-between md:justify-start gap-3 sm:gap-4">
                     <div className="space-y-0.5 min-w-0">
-                      <h3 className="text-base sm:text-lg font-black">{order.id}</h3>
-                      <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      <h3 className="text-base sm:text-lg font-bold">{order.id}</h3>
+                      <p className="text-xs sm:text-xs font-bold text-muted-foreground">
                         {format(new Date(order.createdAt), 'MMM dd, yyyy · hh:mm a')}
                       </p>
                     </div>
                     <span className={cn(
-                      "px-2.5 sm:px-3 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] shrink-0",
+                      "px-2.5 sm:px-3 py-1 text-xs sm:text-xs font-bold shrink-0",
                       order.status === 'Pending' ? "bg-muted text-muted-foreground" :
                       order.status === 'Dispatched' ? "bg-accent text-accent-foreground" : "bg-destructive text-destructive-foreground"
                     )}>
@@ -47,7 +47,7 @@ export default function StudentOrders() {
                     {order.items.map((item, idx) => (
                       <div key={idx} className="flex justify-between items-center text-xs sm:text-sm gap-2">
                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                          <span className="font-black text-accent w-5 sm:w-6 shrink-0">{item.quantity}x</span>
+                          <span className="font-bold text-accent w-5 sm:w-6 shrink-0">{item.quantity}x</span>
                           <span className="font-medium truncate">{item.name}</span>
                         </div>
                         <span className="font-bold shrink-0">₹{item.price * item.quantity}</span>
@@ -58,8 +58,8 @@ export default function StudentOrders() {
 
                 <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-4 pt-3 sm:pt-4 md:pt-0 border-t md:border-t-0 border-border">
                   <div className="text-right">
-                    <p className="concierge-text text-muted-foreground text-[9px] sm:text-[12px]">Order Total</p>
-                    <p className="text-xl sm:text-2xl font-black">₹{order.total}</p>
+                    <p className="concierge-text text-muted-foreground text-xs sm:text-[12px]">Order Total</p>
+                    <p className="text-xl sm:text-2xl font-bold">₹{order.total}</p>
                   </div>
                   <div className="h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center border border-border bg-secondary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />

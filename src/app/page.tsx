@@ -9,7 +9,7 @@ export default function Home() {
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-6 space-y-8 sm:space-y-12">
         <header className="text-center space-y-3 sm:space-y-4">
           <p className="concierge-text text-accent">South Indian Heritage Kitchen</p>
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tighter uppercase">Jeeva Eats</h1>
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold">Jeeva Eats</h1>
           <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
             Traditional flavors meets modern convenience. Premium subscription mess service for the discerning student.
           </p>
@@ -27,7 +27,7 @@ export default function Home() {
                 Access your daily menu, manage subscriptions, and place food orders.
               </p>
             </div>
-            <div className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px]">
+            <div className="flex items-center gap-2 font-bold text-xs">
               Sign In <ArrowRight className="h-3 w-3" />
             </div>
           </Link>
@@ -43,15 +43,15 @@ export default function Home() {
                 Manage orders, monitor kitchen status, and oversee mess members.
               </p>
             </div>
-            <div className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px]">
+            <div className="flex items-center gap-2 font-bold text-xs">
               Manage <ArrowRight className="h-3 w-3" />
             </div>
           </Link>
         </div>
       </div>
 
-      <footer className="px-4 py-6 sm:p-8 border-t border-border flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between items-center text-[10px] uppercase font-bold tracking-[0.3em] text-muted-foreground">
-        <span>&copy; 2024 Jeeva Mess Co.</span>
+      <footer className="px-4 py-6 sm:p-8 border-t border-border flex flex-col sm:flex-row gap-4 sm:gap-0 justify-between items-center text-xs font-bold text-muted-foreground">
+        <span>&copy; {new Date().getFullYear()} Jeeva Mess Co.</span>
         <div className="flex gap-4 sm:gap-8">
           <Link href="#" className="hover:text-accent">Terms</Link>
           <Link href="#" className="hover:text-accent">Privacy</Link>

@@ -46,13 +46,13 @@
   body {
     @apply bg-background text-foreground font-body antialiased selection:bg-accent selection:text-accent-foreground;
   }
-  h1 { @apply text-[28px] font-bold uppercase tracking-tight; }
-  h2 { @apply text-[20px] font-bold uppercase tracking-tight; }
-  h3 { @apply text-[16px] font-medium uppercase tracking-tight; }
+  h1 { @apply text-[28px] font-bold; }
+  h2 { @apply text-[20px] font-bold; }
+  h3 { @apply text-[16px] font-semibold; }
 }
 
 .concierge-text {
-  @apply text-[12px] font-bold uppercase tracking-[0.2em];
+  @apply text-[12px] font-semibold text-muted-foreground;
 }
 
 .layout-container {
@@ -60,7 +60,7 @@
 }
 
 .btn-primary-action {
-  @apply h-[52px] text-[15px] font-semibold uppercase tracking-widest transition-all duration-150 ease-out hover:-translate-y-[2px] active:scale-[0.98];
+  @apply h-[52px] text-[15px] font-semibold transition-all duration-150 ease-out hover:-translate-y-[2px] active:scale-[0.98];
 }
 
 .tap-target {

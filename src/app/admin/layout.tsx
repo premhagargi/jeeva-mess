@@ -8,8 +8,14 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
 
+const ROLE_ROUTES: Record<string, string[]> = {
+  order_manager: ['/admin/dashboard', '/admin/orders', '/admin/login'],
+  kitchen_manager: ['/admin/dashboard', '/admin/orders', '/admin/menu', '/admin/students', '/admin/login'],
+  super_admin: ['/admin/dashboard', '/admin/orders', '/admin/menu', '/admin/students', '/admin/admins', '/admin/login'],
+};
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAdmin, logout } = useStore();
+  const { isAdmin, admin, logout, authLoading } = useStore();
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -18,11 +24,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setMounted(true);
   }, []);
 
+  // Wait for auth to resolve before redirecting
   useEffect(() => {
-    if (mounted && !isAdmin && pathname !== "/admin/login") {
+    if (mounted && !authLoading && !isAdmin && pathname !== "/admin/login") {
       router.push("/admin/login");
     }
-  }, [isAdmin, router, pathname, mounted]);
+  }, [isAdmin, authLoading, router, pathname, mounted]);
+
+  // Role-based route protection
+  useEffect(() => {
+    if (mounted && !authLoading && isAdmin && admin?.role) {
+      const allowed = ROLE_ROUTES[admin.role] || [];
+      if (!allowed.includes(pathname)) {
+        router.push("/admin/dashboard");
+      }
+    }
+  }, [mounted, authLoading, isAdmin, admin, pathname, router]);
 
   if (!mounted) return null;
 
@@ -30,10 +47,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
-  if (!isAdmin) return null;
+  // Show nothing while auth is resolving (prevents flash)
+  if (authLoading || !isAdmin) return null;
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push("/");
   };
 
@@ -47,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="w-full flex items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-2">
               <div className="md:hidden">
-                <h1 className="text-lg font-black uppercase tracking-tight">Jeeva Eats</h1>
+                <h1 className="text-lg font-bold">Jeeva Eats</h1>
               </div>
               <div className="hidden md:block">
                 <SidebarTrigger className="-ml-1" />
@@ -55,8 +73,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <p className="concierge-text text-muted-foreground text-[9px]">Admin</p>
-                <p className="text-xs font-bold hidden sm:block">Administrator</p>
+                <p className="concierge-text text-muted-foreground text-xs">{admin?.role === 'order_manager' ? 'Order Mgr' : admin?.role === 'kitchen_manager' ? 'Kitchen Mgr' : 'Admin'}</p>
+                <p className="text-xs font-bold hidden sm:block">{admin?.name || 'Administrator'}</p>
               </div>
               <button
                 onClick={handleLogout}

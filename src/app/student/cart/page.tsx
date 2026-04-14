@@ -14,12 +14,12 @@ export default function StudentCart() {
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handlePlaceOrder = () => {
-    const order = placeOrder();
+  const handlePlaceOrder = async () => {
+    const order = await placeOrder();
     if (order) {
       toast({
         title: "Order Placed!",
-        description: `Order ${order.id} has been received.`
+        description: `Order ${order.id.slice(0, 8)} has been received.`
       });
       router.push("/student/orders");
     }
@@ -61,10 +61,10 @@ export default function StudentCart() {
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold truncate text-[14px] sm:text-[16px]">{item.name}</h3>
                   <p className="text-xs sm:text-sm text-muted-foreground">₹{item.price}</p>
-                  <p className="font-black text-base sm:hidden mt-1">₹{item.price * item.quantity}</p>
+                  <p className="font-bold text-base sm:hidden mt-1">₹{item.price * item.quantity}</p>
                 </div>
                 {/* Desktop price */}
-                <div className="hidden sm:block w-20 text-right font-black shrink-0">
+                <div className="hidden sm:block w-20 text-right font-bold shrink-0">
                   ₹{item.price * item.quantity}
                 </div>
               </div>
@@ -87,7 +87,7 @@ export default function StudentCart() {
                 </div>
                 <button
                   onClick={() => removeFromCart(item.id)}
-                  className="text-[10px] font-bold uppercase tracking-widest text-destructive hover:underline tap-target"
+                  className="text-xs font-bold text-destructive hover:underline tap-target"
                 >
                   Remove
                 </button>
@@ -99,7 +99,7 @@ export default function StudentCart() {
         <div className="lg:col-span-4">
           <div className="sticky top-24 space-y-4 sm:space-y-6">
             <div className="border border-border p-4 sm:p-6 bg-secondary space-y-4 sm:space-y-6">
-              <h3 className="text-sm font-black uppercase tracking-widest pb-3 sm:pb-4 border-b border-border">Bill Summary</h3>
+              <h3 className="text-sm font-bold pb-3 sm:pb-4 border-b border-border">Bill Summary</h3>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Item Total</span>
@@ -110,8 +110,8 @@ export default function StudentCart() {
                   <span className="text-accent font-bold">Applied</span>
                 </div>
                 <div className="pt-4 border-t border-border flex justify-between items-center">
-                  <span className="font-black text-base sm:text-lg">Total Amount</span>
-                  <span className="font-black text-lg sm:text-xl">₹{total}</span>
+                  <span className="font-bold text-base sm:text-lg">Total Amount</span>
+                  <span className="font-bold text-lg sm:text-xl">₹{total}</span>
                 </div>
               </div>
 
@@ -125,7 +125,7 @@ export default function StudentCart() {
               </div>
             </div>
 
-            <p className="text-[10px] text-muted-foreground text-center uppercase tracking-[0.2em] px-4 leading-relaxed hidden lg:block">
+            <p className="text-xs text-muted-foreground text-center px-4 leading-relaxed hidden lg:block">
               Standard mess delivery terms apply to all orders placed within the hall.
             </p>
           </div>

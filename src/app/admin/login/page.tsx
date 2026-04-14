@@ -7,27 +7,31 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const { loginAsAdmin } = useStore();
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginAsAdmin(username)) {
+    setLoading(true);
+    const success = await loginAsAdmin(email, password);
+    setLoading(false);
+    if (success) {
       toast({ title: "Admin Access Granted", description: "Successfully logged into management portal." });
       router.push("/admin/dashboard");
     } else {
-      toast({ 
-        variant: "destructive", 
-        title: "Access Denied", 
-        description: "Invalid Admin Username (Try 'admin')" 
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "Invalid email or password."
       });
     }
   };
@@ -43,7 +47,7 @@ export default function AdminLogin() {
 
       <Card className="w-full max-w-md border-border/60 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] bg-white/95 backdrop-blur-md relative z-10 rounded-none">
         <CardHeader className="space-y-3 sm:space-y-4 p-4 sm:p-6">
-          <Link href="/" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-accent transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-accent transition-colors">
             <ArrowLeft className="h-3 w-3" /> Back to Home
           </Link>
           <div className="flex items-center gap-3 sm:gap-4 pt-2">
@@ -51,26 +55,27 @@ export default function AdminLogin() {
               <ShieldCheck className="h-6 w-6 sm:h-7 sm:w-7 text-accent" />
             </div>
             <div className="space-y-0.5 min-w-0">
-              <CardTitle className="text-xl sm:text-2xl font-black uppercase tracking-tight">Admin Portal</CardTitle>
-              <CardDescription className="concierge-text text-accent text-[10px]">Kitchen Management Console</CardDescription>
+              <CardTitle className="text-xl sm:text-2xl font-bold">Admin Portal</CardTitle>
+              <CardDescription className="concierge-text text-accent text-xs">Kitchen Management Console</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
           <form onSubmit={handleLogin} className="space-y-5 sm:space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-[10px] font-black uppercase tracking-widest opacity-70">Admin Username</Label>
+              <Label htmlFor="email" className="text-xs font-bold opacity-70">Admin Email</Label>
               <Input
-                id="username"
-                placeholder="admin"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="admin@jeeva.eats"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="h-11 sm:h-12 border-border/80 focus:border-accent rounded-none bg-white"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest opacity-70">Security Key</Label>
+              <Label htmlFor="password" className="text-xs font-bold opacity-70">Security Key</Label>
               <Input
                 id="password"
                 type="password"
@@ -81,8 +86,12 @@ export default function AdminLogin() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full h-12 sm:h-14 text-sm font-black uppercase tracking-[0.2em] bg-primary hover:bg-accent transition-all rounded-none group active:scale-[0.98]">
-              Authorize Access
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 sm:h-14 text-sm font-bold bg-primary hover:bg-accent transition-all rounded-none group active:scale-[0.98]"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Authorize Access"}
             </Button>
           </form>
         </CardContent>

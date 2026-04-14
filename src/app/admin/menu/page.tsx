@@ -12,19 +12,19 @@ import { ThaliItemType } from "@/lib/mock-data";
 export default function AdminMenuManagement() {
   const { thaliMenu, updateThaliItem, addThaliItem, removeThaliItem } = useStore();
   const { toast } = useToast();
-  
+
   const [newItemName, setNewItemName] = useState("");
-  const [isAddingSide, setIsAddingSide] = useState<string | null>(null); // 'lunch' | 'dinner' | null
+  const [isAddingSide, setIsAddingSide] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
-  
+
   const editContainerRef = useRef<HTMLDivElement | null>(null);
   const addContainerRef = useRef<HTMLDivElement | null>(null);
 
   const handleStartEdit = (id: string, currentName: string) => {
     setEditingId(id);
     setTempValue(currentName);
-    setIsAddingSide(null); // Close add mode if editing
+    setIsAddingSide(null);
   };
 
   const handleCancelEdit = () => {
@@ -32,9 +32,9 @@ export default function AdminMenuManagement() {
     setTempValue("");
   };
 
-  const handleSaveEdit = (type: 'lunch' | 'dinner', id: string) => {
+  const handleSaveEdit = async (type: 'lunch' | 'dinner', id: string) => {
     if (!tempValue.trim()) return;
-    updateThaliItem(type, id, tempValue);
+    await updateThaliItem(type, id, tempValue);
     setEditingId(null);
     setTempValue("");
     toast({ title: "Updated", description: "Menu item saved successfully." });
@@ -43,7 +43,7 @@ export default function AdminMenuManagement() {
   const handleStartAdd = (type: 'lunch' | 'dinner') => {
     setIsAddingSide(type);
     setNewItemName("");
-    setEditingId(null); // Close edit mode if adding
+    setEditingId(null);
   };
 
   const handleCancelAdd = () => {
@@ -51,9 +51,9 @@ export default function AdminMenuManagement() {
     setNewItemName("");
   };
 
-  const handleAddSide = (type: 'lunch' | 'dinner') => {
+  const handleAddSide = async (type: 'lunch' | 'dinner') => {
     if (!newItemName.trim()) return;
-    addThaliItem(type, newItemName, 'side');
+    await addThaliItem(type, newItemName, 'side');
     setNewItemName("");
     setIsAddingSide(null);
     toast({ title: "Side Added", description: `${newItemName} added to menu.` });
@@ -77,12 +77,14 @@ export default function AdminMenuManagement() {
   }, [editingId, isAddingSide]);
 
   const renderSection = (type: 'lunch' | 'dinner', label: string, itemType: ThaliItemType) => {
-    const items = thaliMenu[type].filter(i => i.type === itemType);
-    const isSide = itemType === 'side';
+    const items = thaliMenu[type]?.filter(i => i.type === itemType) || [];
+    const canAdd = ['bhaji', 'bread', 'side'].includes(itemType);
+    const addKey = `${type}-${itemType}`;
+    const placeholderText = itemType === 'bhaji' ? 'Add Bhaaji...' : itemType === 'bread' ? 'Add Bread...' : 'Add Side...';
 
     return (
       <div className="space-y-1">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-1 mb-1">{label}</h3>
+        <h3 className="text-xs font-bold text-muted-foreground px-1 mb-1">{label}</h3>
         <div className="divide-y divide-border/40 border border-border/40 bg-white shadow-sm">
           {items.map((item) => (
             <div
@@ -120,46 +122,58 @@ export default function AdminMenuManagement() {
                   )}
                   {editingId !== item.id && (
                     <div className="absolute right-1 sm:right-2 flex items-center gap-1 sm:gap-2">
-                       {isSide && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/5 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
-                          onClick={() => removeThaliItem(type, item.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors pointer-events-none select-none hidden sm:inline">Edit</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/5 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
+                        onClick={() => removeThaliItem(type, item.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <span className="text-xs font-bold text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors pointer-events-none select-none hidden sm:inline">Edit</span>
                     </div>
                   )}
                 </div>
               </div>
             </div>
           ))}
-          {isSide && (
+          {canAdd && (
             <div
               className="flex items-center px-2 sm:px-3 min-h-[44px] sm:h-11 bg-secondary/20 group/add relative"
-              ref={isAddingSide === type ? addContainerRef : null}
+              ref={isAddingSide === addKey ? addContainerRef : null}
             >
               <div className="flex-1 flex items-center min-w-0">
                 <div className="relative flex-1 flex items-center">
                   <Plus className="h-3.5 w-3.5 text-muted-foreground mr-2 shrink-0" />
                   <Input
-                    placeholder="Add Side..."
-                    value={isAddingSide === type ? newItemName : ""}
+                    placeholder={placeholderText}
+                    value={isAddingSide === addKey ? newItemName : ""}
                     onChange={(e) => setNewItemName(e.target.value)}
-                    onFocus={() => handleStartAdd(type)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddSide(type)}
+                    onFocus={() => { setIsAddingSide(addKey); setNewItemName(""); setEditingId(null); }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newItemName.trim()) {
+                        addThaliItem(type, newItemName, itemType);
+                        setNewItemName("");
+                        setIsAddingSide(null);
+                        toast({ title: "Added", description: `${newItemName} added to ${label}.` });
+                      }
+                    }}
                     className="h-8 border-transparent bg-transparent focus:bg-white text-xs italic px-2 w-full transition-all pr-16"
                   />
-                  {isAddingSide === type && (
+                  {isAddingSide === addKey && (
                     <div className="absolute right-0 flex items-center gap-0.5 bg-white pl-1 shadow-[-10px_0_10px_white] z-10">
                       <Button
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8 sm:h-7 sm:w-7 text-success hover:bg-success/10"
-                        onClick={() => handleAddSide(type)}
+                        onClick={() => {
+                          if (newItemName.trim()) {
+                            addThaliItem(type, newItemName, itemType);
+                            setNewItemName("");
+                            setIsAddingSide(null);
+                            toast({ title: "Added", description: `${newItemName} added to ${label}.` });
+                          }
+                        }}
                       >
                         <Check className="h-4 w-4" />
                       </Button>
@@ -186,8 +200,8 @@ export default function AdminMenuManagement() {
     <div className="h-full flex flex-col space-y-3 sm:space-y-4 max-w-4xl mx-auto overflow-hidden">
       <header className="flex items-center justify-between shrink-0 px-1 gap-3">
         <div className="space-y-0.5 min-w-0">
-          <p className="concierge-text text-accent text-[10px]">Operations Console</p>
-          <h1 className="text-lg sm:text-xl font-black uppercase tracking-tight leading-none">Menu Management</h1>
+          <p className="concierge-text text-accent text-xs">Operations Console</p>
+          <h1 className="text-lg sm:text-xl font-bold leading-none">Menu Management</h1>
         </div>
         <div className="flex items-center gap-2 bg-secondary px-2 sm:px-3 py-1.5 border border-border shrink-0">
           <div className="flex items-center justify-center w-2 h-2">
@@ -196,16 +210,20 @@ export default function AdminMenuManagement() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
           </div>
-          <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Live Menu</span>
+          <span className="text-xs sm:text-xs font-bold">Live Menu</span>
         </div>
       </header>
 
-      <Tabs defaultValue="lunch" className="flex-1 flex flex-col min-h-0">
+      <Tabs
+        defaultValue={typeof window !== 'undefined' ? (localStorage.getItem('menu-tab') || 'lunch') : 'lunch'}
+        onValueChange={(v) => localStorage.setItem('menu-tab', v)}
+        className="flex-1 flex flex-col min-h-0"
+      >
         <TabsList className="bg-secondary p-1 h-11 w-full border border-border shrink-0">
-          <TabsTrigger value="lunch" className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[11px]">
+          <TabsTrigger value="lunch" className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold text-sm">
             Lunch Thali
           </TabsTrigger>
-          <TabsTrigger value="dinner" className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black uppercase tracking-widest text-[11px]">
+          <TabsTrigger value="dinner" className="flex-1 h-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold text-sm">
             Dinner Thali
           </TabsTrigger>
         </TabsList>

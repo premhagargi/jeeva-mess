@@ -8,7 +8,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
-  const { user, isAdmin } = useStore();
+  const { user, isAdmin, authLoading } = useStore();
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -17,11 +17,12 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     setMounted(true);
   }, []);
 
+  // Wait for auth to resolve before redirecting
   useEffect(() => {
-    if (mounted && !user && !isAdmin && pathname !== "/student/login") {
+    if (mounted && !authLoading && !user && !isAdmin && pathname !== "/student/login") {
       router.push("/student/login");
     }
-  }, [user, isAdmin, router, pathname, mounted]);
+  }, [user, isAdmin, authLoading, router, pathname, mounted]);
 
   if (!mounted) return null;
 
@@ -29,7 +30,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     return <>{children}</>;
   }
 
-  if (!user && !isAdmin) return null;
+  // Show nothing while auth is resolving (prevents flash)
+  if (authLoading || (!user && !isAdmin)) return null;
 
   return (
     <SidebarProvider>
@@ -41,7 +43,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           <div className="w-full flex items-center justify-between px-3 sm:px-4 md:px-6">
             <div className="flex items-center gap-2">
               <div className="md:hidden">
-                <h1 className="text-lg font-black uppercase tracking-tight">Jeeva Eats</h1>
+                <h1 className="text-lg font-bold">Jeeva Eats</h1>
               </div>
               <div className="hidden md:block">
                 <SidebarTrigger className="-ml-1" />
@@ -49,7 +51,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <p className="concierge-text text-muted-foreground text-[9px]">Member</p>
+                <p className="concierge-text text-muted-foreground text-xs">Member</p>
                 <p className="text-xs font-bold hidden sm:block">{user?.name || "Administrator"}</p>
               </div>
             </div>
