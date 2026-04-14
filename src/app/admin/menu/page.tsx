@@ -85,7 +85,7 @@ export default function AdminMenuManagement() {
     return (
       <div className="space-y-1">
         <h3 className="text-xs font-bold text-muted-foreground px-1 mb-1">{label}</h3>
-        <div className="divide-y divide-border/40 border border-border/40 bg-white shadow-sm">
+        <div className="divide-y divide-border/40 border border-border/40 bg-card shadow-sm">
           {items.map((item) => (
             <div
               key={item.id}
@@ -98,10 +98,10 @@ export default function AdminMenuManagement() {
                     value={editingId === item.id ? tempValue : item.name}
                     onChange={(e) => setTempValue(e.target.value)}
                     onFocus={() => handleStartEdit(item.id, item.name)}
-                    className="h-8 border-transparent bg-transparent hover:bg-secondary/10 focus:bg-white focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text pr-20"
+                    className="h-8 border-transparent bg-transparent hover:bg-secondary/10 focus:bg-card focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text pr-20"
                   />
                   {editingId === item.id && (
-                    <div className="absolute right-1 flex items-center gap-0.5 bg-white pl-1 shadow-[-10px_0_10px_white] z-10">
+                    <div className="absolute right-1 flex items-center gap-0.5 bg-card pl-1 shadow-[-10px_0_10px_hsl(40,30%,99%)] z-10">
                       <Button
                         size="icon"
                         variant="ghost"
@@ -158,10 +158,10 @@ export default function AdminMenuManagement() {
                         toast({ title: "Added", description: `${newItemName} added to ${label}.` });
                       }
                     }}
-                    className="h-8 border-transparent bg-transparent focus:bg-white text-xs italic px-2 w-full transition-all pr-16"
+                    className="h-8 border-transparent bg-transparent focus:bg-card text-xs italic px-2 w-full transition-all pr-16"
                   />
                   {isAddingSide === addKey && (
-                    <div className="absolute right-0 flex items-center gap-0.5 bg-white pl-1 shadow-[-10px_0_10px_white] z-10">
+                    <div className="absolute right-0 flex items-center gap-0.5 bg-card pl-1 shadow-[-10px_0_10px_hsl(40,30%,99%)] z-10">
                       <Button
                         size="icon"
                         variant="ghost"

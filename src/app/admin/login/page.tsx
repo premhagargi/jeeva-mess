@@ -38,15 +38,15 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8 sm:p-6 bg-[#FAF9F6] relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 sm:p-6 bg-background relative overflow-hidden">
       {/* Premium Ambient Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-accent/5 blur-[120px]" />
-        <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-[#F5E6D3]/30 blur-[100px]" />
+        <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[100px]" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/[0.02]" />
       </div>
 
-      <Card className="w-full max-w-md border-border/60 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] bg-white/95 backdrop-blur-md relative z-10 rounded-none">
+      <Card className="w-full max-w-md border-border/60 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] bg-card/95 backdrop-blur-md relative z-10 rounded-none">
         <CardHeader className="space-y-3 sm:space-y-4 p-4 sm:p-6">
           <Link href="/" className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-accent transition-colors">
             <ArrowLeft className="h-3 w-3" /> Back to Home
@@ -71,7 +71,7 @@ export default function AdminLogin() {
                 placeholder="admin@jeeva.eats"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-11 sm:h-12 border-border/80 focus:border-accent rounded-none bg-white"
+                className="h-11 sm:h-12 border-border/80 focus:border-accent rounded-none bg-card"
                 required
               />
             </div>
@@ -82,7 +82,7 @@ export default function AdminLogin() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-11 sm:h-12 border-border/80 focus:border-accent rounded-none bg-white pr-10"
+                className="h-11 sm:h-12 border-border/80 focus:border-accent rounded-none bg-card pr-10"
                 required
               />
             </div>

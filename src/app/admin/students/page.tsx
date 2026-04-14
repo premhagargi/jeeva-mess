@@ -207,7 +207,7 @@ export default function AdminStudents() {
           </div>
         ) : (
           filteredStudents.map((student) => (
-            <div key={student.id} className="p-3 sm:p-4 bg-white border border-border hover:border-accent active:border-accent transition-all flex items-center justify-between gap-3">
+            <div key={student.id} className="p-3 sm:p-4 bg-card border border-border hover:border-accent active:border-accent transition-all flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold text-accent leading-none mb-1">STU{student.id}</p>
                 <h4 className="font-bold text-[14px] leading-tight truncate">{student.name}</h4>

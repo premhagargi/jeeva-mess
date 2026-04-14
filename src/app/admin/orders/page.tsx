@@ -86,7 +86,7 @@ export default function AdminOrders() {
               "px-3 py-1.5 text-xs font-bold border transition-all shrink-0",
               filter === s
                 ? "bg-primary text-primary-foreground border-primary"
-                : "bg-white text-muted-foreground border-border hover:border-accent hover:text-foreground"
+                : "bg-card text-muted-foreground border-border hover:border-accent hover:text-foreground"
             )}
           >
             {s} ({counts[s]})
@@ -107,7 +107,7 @@ export default function AdminOrders() {
             {visibleOrders.map((order) => (
               <div
                 key={order.id}
-                className="bg-white border border-border p-3 sm:p-4 flex flex-col justify-between hover:border-accent transition-all active:border-accent"
+                className="bg-card border border-border p-3 sm:p-4 flex flex-col justify-between hover:border-accent transition-all active:border-accent"
                 style={{ contentVisibility: 'auto', containIntrinsicSize: '0 150px' }}
               >
                 <div className="flex justify-between items-start mb-2 gap-2">

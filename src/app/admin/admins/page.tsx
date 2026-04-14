@@ -171,7 +171,7 @@ export default function AdminManagement() {
             const roleInfo = ROLE_CONFIG[a.role] || ROLE_CONFIG.kitchen_manager;
             const Icon = roleInfo.icon;
             return (
-              <div key={a.uid} className="p-4 sm:p-5 bg-white border border-border hover:border-accent transition-all">
+              <div key={a.uid} className="p-4 sm:p-5 bg-card border border-border hover:border-accent transition-all">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0 flex-1">
                     <h4 className="font-bold text-[15px] leading-tight truncate">{a.name}</h4>

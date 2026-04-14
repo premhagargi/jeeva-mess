@@ -99,14 +99,14 @@ export default function AdminDashboard() {
           <CardContent className="h-60 sm:h-80 p-2 sm:p-6 pt-0 sm:pt-0">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" />
-                <XAxis dataKey="name" stroke="#000" fontSize={10} fontWeight="bold" />
-                <YAxis stroke="#000" fontSize={10} fontWeight="bold" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(38, 18%, 86%)" />
+                <XAxis dataKey="name" stroke="hsl(30, 10%, 10%)" fontSize={10} fontWeight="bold" />
+                <YAxis stroke="hsl(30, 10%, 10%)" fontSize={10} fontWeight="bold" />
                 <Tooltip
-                  cursor={{ fill: '#F2F2F2' }}
-                  contentStyle={{ backgroundColor: '#F9F8F3', border: '1px solid #E5E5E5', borderRadius: '0' }}
+                  cursor={{ fill: 'hsl(40, 25%, 93%)' }}
+                  contentStyle={{ backgroundColor: 'hsl(40, 30%, 99%)', border: '1px solid hsl(38, 18%, 86%)', borderRadius: '0.5rem' }}
                 />
-                <Bar dataKey="count" fill="#71171F" />
+                <Bar dataKey="count" fill="hsl(36, 70%, 50%)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
