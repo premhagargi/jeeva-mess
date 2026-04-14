@@ -26,6 +26,19 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     }
   }, [user, isAdmin, authLoading, router, pathname, mounted]);
 
+  // Prevent back button from going past student dashboard
+  useEffect(() => {
+    if (!mounted || !user || pathname === "/student/login") return;
+    const handlePopState = () => {
+      const loc = window.location.pathname;
+      if (!loc.startsWith('/student')) {
+        router.replace('/student/dashboard');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [mounted, user, pathname, router]);
+
   if (!mounted) return null;
 
   if (pathname === "/student/login") {

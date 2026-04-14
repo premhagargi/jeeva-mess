@@ -12,6 +12,7 @@ import {
   addStudent as addStudentDoc,
   deleteStudent as deleteStudentDoc,
   subscribeOrders,
+  fetchOrdersFromServer,
   createOrder,
   updateOrderStatus as updateOrderStatusDoc,
   subscribeAdmins,
@@ -327,6 +328,12 @@ export function useStore() {
     await updateOrderStatusDoc(orderId, status);
   }, []);
 
+  const refreshOrders = useCallback(async () => {
+    const fresh = await fetchOrdersFromServer();
+    globalOrders = fresh;
+    notify();
+  }, []);
+
   // ── Student registration ──────────────────────────────────
 
   const registerStudent = useCallback(async (student: Student): Promise<{ success: boolean; password?: string }> => {
@@ -430,6 +437,7 @@ export function useStore() {
     loginAsAdmin,
     logout,
     updateOrderStatus,
+    refreshOrders,
     registerStudent,
     deleteStudent,
     updateThaliItem,

@@ -33,6 +33,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [isAdmin, authLoading, router, pathname, mounted]);
 
+  // Prevent back button from going past admin dashboard
+  useEffect(() => {
+    if (!mounted || !isAdmin || pathname === "/admin/login") return;
+    const handlePopState = () => {
+      const loc = window.location.pathname;
+      if (!loc.startsWith('/admin')) {
+        router.replace('/admin/dashboard');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [mounted, isAdmin, pathname, router]);
+
   // Role-based route protection
   useEffect(() => {
     if (mounted && !authLoading && isAdmin && admin?.role) {

@@ -5,12 +5,20 @@ import { MenuCategory } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, ShoppingBag, ArrowRight } from "lucide-react";
+import { Plus, ShoppingBag, ArrowRight, UtensilsCrossed } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 
+const TYPE_LABELS: Record<string, string> = {
+  bhaji: 'Bhaaji',
+  bread: 'Bread',
+  rice: 'Rice',
+  sambar: 'Sambar',
+  side: 'Sides',
+};
+
 export default function StudentMenu() {
-  const { addToCart, cart, menuItems } = useStore();
+  const { addToCart, cart, menuItems, thaliMenu } = useStore();
   const { toast } = useToast();
 
   const handleAddToCart = (item: any) => {
@@ -24,6 +32,39 @@ export default function StudentMenu() {
   const categories: MenuCategory[] = ['Lunch', 'Dinner'];
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const renderThaliSection = (type: 'lunch' | 'dinner') => {
+    const items = thaliMenu[type] || [];
+    if (items.length === 0) return null;
+
+    // Group by type
+    const grouped: Record<string, string[]> = {};
+    items.forEach(item => {
+      if (!grouped[item.type]) grouped[item.type] = [];
+      grouped[item.type].push(item.name);
+    });
+
+    return (
+      <Card className="border-primary/20 shadow-none bg-primary/5 mb-6">
+        <CardContent className="p-4 sm:p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <UtensilsCrossed className="h-4 w-4 text-primary" />
+            <h3 className="font-bold text-sm text-primary">
+              Today's {type === 'lunch' ? 'Lunch' : 'Dinner'} Thali
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            {Object.entries(grouped).map(([type, names]) => (
+              <div key={type} className="text-sm">
+                <span className="text-muted-foreground text-xs font-semibold">{TYPE_LABELS[type] || type}: </span>
+                <span className="font-medium">{names.join(', ')}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-5 sm:space-y-8">
@@ -47,6 +88,9 @@ export default function StudentMenu() {
 
         {categories.map((cat) => (
           <TabsContent key={cat} value={cat} className="space-y-3 sm:space-y-4">
+            {/* Today's Thali - live from admin */}
+            {renderThaliSection(cat === 'Lunch' ? 'lunch' : 'dinner')}
+
             {menuItems.filter(item => item.category === cat).length === 0 ? (
               <div className="p-12 text-center border border-dashed border-border bg-secondary/20">
                 <p className="text-xs font-bold text-muted-foreground">No {cat.toLowerCase()} items available</p>
@@ -93,9 +137,9 @@ export default function StudentMenu() {
       {cartCount > 0 && (
         <div className="fixed bottom-[68px] md:bottom-8 left-3 right-3 sm:left-4 sm:right-4 z-40 max-w-[1120px] mx-auto pointer-events-none">
           <Link href="/student/cart" className="pointer-events-auto">
-            <div className="bg-primary text-primary-foreground p-3 sm:p-4 flex items-center justify-between shadow-lg hover:bg-accent active:bg-accent transition-colors group">
+            <div className="bg-primary text-primary-foreground p-3 sm:p-4 flex items-center justify-between shadow-lg hover:bg-accent active:bg-accent transition-colors group rounded-lg">
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="bg-primary-foreground text-primary p-1.5 sm:p-2 h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center">
+                <div className="bg-primary-foreground text-primary p-1.5 sm:p-2 h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded">
                   <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div>

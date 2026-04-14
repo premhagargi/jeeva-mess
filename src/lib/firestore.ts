@@ -3,6 +3,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  getDocsFromServer,
   setDoc,
   updateDoc,
   deleteDoc,
@@ -99,6 +100,11 @@ export function subscribeOrders(callback: (orders: Order[]) => void): Unsubscrib
       callback(orders);
     }
   );
+}
+
+export async function fetchOrdersFromServer(): Promise<Order[]> {
+  const snap = await getDocsFromServer(query(collection(db, 'orders'), orderBy('createdAt', 'desc')));
+  return snap.docs.map(d => ({ ...d.data(), id: d.id } as Order));
 }
 
 export async function createOrder(order: Omit<Order, 'id'>): Promise<string> {

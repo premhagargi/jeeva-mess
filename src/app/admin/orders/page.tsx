@@ -3,7 +3,7 @@
 import { useStore } from "@/hooks/use-store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle, XCircle, Package } from "lucide-react";
+import { CheckCircle, XCircle, Package, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { format } from "date-fns";
@@ -13,11 +13,18 @@ const STATUSES: (OrderStatus | 'All')[] = ['All', 'Pending', 'Dispatched', 'Canc
 const BATCH_SIZE = 30;
 
 export default function AdminOrders() {
-  const { orders, updateOrderStatus } = useStore();
+  const { orders, updateOrderStatus, refreshOrders } = useStore();
   const { toast } = useToast();
   const [filter, setFilter] = useState<OrderStatus | 'All'>('All');
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Auto-refresh from server on mount
+  useEffect(() => {
+    refreshOrders().then(() => setLastUpdated(new Date()));
+  }, [refreshOrders]);
 
   const filteredOrders = useMemo(() => {
     if (filter === 'All') return orders;
@@ -50,10 +57,23 @@ export default function AdminOrders() {
     return () => observer.disconnect();
   }, [hasMore, filteredOrders.length]);
 
+  // Track when orders update from real-time listener
+  useEffect(() => {
+    setLastUpdated(new Date());
+  }, [orders]);
+
   // Reset visible count when filter changes
   useEffect(() => {
     setVisibleCount(BATCH_SIZE);
   }, [filter]);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshOrders();
+    setLastUpdated(new Date());
+    setRefreshing(false);
+    toast({ title: "Orders refreshed" });
+  }, [refreshOrders, toast]);
 
   const handleStatusUpdate = useCallback((orderId: string, status: OrderStatus) => {
     updateOrderStatus(orderId, status);
@@ -70,9 +90,22 @@ export default function AdminOrders() {
           <p className="concierge-text text-accent text-xs">Operations</p>
           <h1 className="text-lg sm:text-xl font-bold">Active Orders</h1>
         </div>
-        <div className="flex items-center gap-2 bg-secondary px-2.5 sm:px-3 py-1.5 border border-border shrink-0">
-          <Package className="h-3.5 w-3.5 text-accent" />
-          <span className="text-xs font-bold">{filteredOrders.length} of {orders.length}</span>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+            <span>Updated {format(lastUpdated, 'hh:mm a')}</span>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="h-9 w-9 flex items-center justify-center border border-border bg-card hover:bg-secondary rounded-md transition-colors"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5 text-muted-foreground", refreshing && "animate-spin")} />
+          </button>
+          <div className="flex items-center gap-2 bg-secondary px-2.5 sm:px-3 py-1.5 border border-border">
+            <Package className="h-3.5 w-3.5 text-accent" />
+            <span className="text-xs font-bold">{filteredOrders.length} of {orders.length}</span>
+          </div>
         </div>
       </header>
 
