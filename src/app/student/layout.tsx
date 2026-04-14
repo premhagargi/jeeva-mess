@@ -7,9 +7,10 @@ import { useStore } from "@/hooks/use-store";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PullToRefresh } from "@/components/shared/pull-to-refresh";
+import { PageLoader } from "@/components/shared/page-loader";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
-  const { user, isAdmin, authLoading } = useStore();
+  const { user, isAdmin, authLoading, dataLoading } = useStore();
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -59,7 +60,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           </div>
         </header>
         <PullToRefresh className="flex-1 overflow-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 max-w-[1440px] mx-auto w-full">
-          {children}
+          {dataLoading ? <PageLoader /> : children}
         </PullToRefresh>
         <MobileNav />
       </SidebarInset>

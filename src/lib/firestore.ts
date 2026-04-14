@@ -85,6 +85,10 @@ export async function addStudent(student: Student): Promise<void> {
   });
 }
 
+export async function deleteStudent(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'students', id));
+}
+
 // ─── Orders ───────────────────────────────────────────────────
 
 export function subscribeOrders(callback: (orders: Order[]) => void): Unsubscribe {

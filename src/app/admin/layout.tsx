@@ -8,6 +8,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
 import { PullToRefresh } from "@/components/shared/pull-to-refresh";
+import { PageLoader } from "@/components/shared/page-loader";
 
 const ROLE_ROUTES: Record<string, string[]> = {
   order_manager: ['/admin/dashboard', '/admin/orders', '/admin/login'],
@@ -16,7 +17,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAdmin, admin, logout, authLoading } = useStore();
+  const { isAdmin, admin, logout, authLoading, dataLoading } = useStore();
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -87,7 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
         <PullToRefresh className="flex-1 overflow-auto bg-background px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 max-w-[1440px] mx-auto w-full">
-          {children}
+          {dataLoading ? <PageLoader /> : children}
         </PullToRefresh>
         <MobileNav />
       </SidebarInset>

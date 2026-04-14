@@ -10,6 +10,7 @@ import {
   subscribeStudents,
   getStudentByEmail,
   addStudent as addStudentDoc,
+  deleteStudent as deleteStudentDoc,
   subscribeOrders,
   createOrder,
   updateOrderStatus as updateOrderStatusDoc,
@@ -62,7 +63,19 @@ function clearAuthCache() {
 // Restore auth from cache instantly (no waiting for Firebase)
 const cached = typeof window !== 'undefined' ? loadAuthCache() : null;
 
-let globalCart: CartItem[] = [];
+// Cart persistence
+const CART_KEY = 'jeeva_cart';
+function loadCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+function saveCart(cart: CartItem[]) {
+  try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch {}
+}
+
+let globalCart: CartItem[] = typeof window !== 'undefined' ? loadCart() : [];
 let globalOrders: Order[] = [];
 let globalStudents: Student[] = [];
 let globalMenuItems: MenuItem[] = [];
@@ -223,6 +236,7 @@ export function useStore() {
 
   const logout = useCallback(async () => {
     globalCart = [];
+    saveCart(globalCart);
     clearAuthCache();
     currentUser = null;
     currentAdmin = null;
@@ -241,11 +255,13 @@ export function useStore() {
     } else {
       globalCart = [...globalCart, { ...item, quantity: 1 }];
     }
+    saveCart(globalCart);
     notify();
   }, []);
 
   const removeFromCart = useCallback((id: string) => {
     globalCart = globalCart.filter((i) => i.id !== id);
+    saveCart(globalCart);
     notify();
   }, []);
 
@@ -254,6 +270,7 @@ export function useStore() {
     if (item) {
       item.quantity = Math.max(1, item.quantity + delta);
       globalCart = [...globalCart];
+      saveCart(globalCart);
       notify();
     }
   }, []);
@@ -274,6 +291,7 @@ export function useStore() {
 
     // Optimistic: clear cart immediately
     globalCart = [];
+    saveCart(globalCart);
     notify();
 
     const id = await createOrder(orderData);
@@ -309,6 +327,18 @@ export function useStore() {
       return { success: true, password };
     } catch {
       return { success: false };
+    }
+  }, []);
+
+  const deleteStudent = useCallback(async (id: string): Promise<boolean> => {
+    try {
+      // Optimistic
+      globalStudents = globalStudents.filter(s => s.id !== id);
+      notify();
+      await deleteStudentDoc(id);
+      return true;
+    } catch {
+      return false;
     }
   }, []);
 
@@ -383,6 +413,7 @@ export function useStore() {
     logout,
     updateOrderStatus,
     registerStudent,
+    deleteStudent,
     updateThaliItem,
     addThaliItem,
     removeThaliItem,

@@ -130,6 +130,16 @@ export default function AdminOrders() {
                   </div>
                 </div>
 
+                {/* Order items */}
+                <div className="bg-secondary/50 p-2 mb-2 space-y-1">
+                  {order.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-xs gap-2">
+                      <span className="truncate">{item.quantity}x {item.name}</span>
+                      <span className="font-bold shrink-0">{item.price * item.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+
                 {order.status === 'Pending' && (
                   <div className="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-border">
                     <Button

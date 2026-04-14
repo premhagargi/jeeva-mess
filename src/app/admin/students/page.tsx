@@ -13,11 +13,11 @@ import {
   DialogTrigger,
   DialogDescription
 } from "@/components/ui/dialog";
-import { CheckCircle2, Copy, Plus, Search, Key, Edit2, Loader2 } from "lucide-react";
+import { CheckCircle2, Copy, Plus, Search, Key, Trash2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminStudents() {
-  const { students, registerStudent } = useStore();
+  const { students, registerStudent, deleteStudent } = useStore();
   const { toast } = useToast();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -215,8 +215,18 @@ export default function AdminStudents() {
               </div>
 
               <div className="shrink-0">
-                <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-accent transition-colors">
-                  <Edit2 className="h-3.5 w-3.5" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive transition-colors"
+                  onClick={() => {
+                    if (confirm(`Remove student ${student.name} (STU${student.id})?`)) {
+                      deleteStudent(student.id);
+                      toast({ title: "Student removed" });
+                    }
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
