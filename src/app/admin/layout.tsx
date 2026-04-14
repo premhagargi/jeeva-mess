@@ -7,6 +7,7 @@ import { useStore } from "@/hooks/use-store";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
+import { PullToRefresh } from "@/components/shared/pull-to-refresh";
 
 const ROLE_ROUTES: Record<string, string[]> = {
   order_manager: ['/admin/dashboard', '/admin/orders', '/admin/login'],
@@ -85,9 +86,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-auto bg-background px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 max-w-[1440px] mx-auto w-full">
+        <PullToRefresh className="flex-1 overflow-auto bg-background px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 max-w-[1440px] mx-auto w-full">
           {children}
-        </div>
+        </PullToRefresh>
         <MobileNav />
       </SidebarInset>
     </SidebarProvider>
