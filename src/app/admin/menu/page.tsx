@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ThaliItemType } from "@/lib/mock-data";
 
 export default function AdminMenuManagement() {
-  const { thaliMenu, updateThaliItem, addThaliItem, removeThaliItem } = useStore();
+  const { thaliMenu, updateThaliItem, addThaliItem, removeThaliItem, updateThaliPrice } = useStore();
   const { toast } = useToast();
 
   const [newItemName, setNewItemName] = useState("");
@@ -230,9 +230,24 @@ export default function AdminMenuManagement() {
 
         {(['lunch', 'dinner'] as const).map((type) => (
           <TabsContent key={type} value={type} className="flex-1 m-0 pt-4 focus-visible:outline-none overflow-y-auto pb-10">
+            {/* Thali Price */}
+            <div className="flex items-center gap-3 mb-6 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+              <span className="text-sm font-bold">Thali Price:</span>
+              <div className="flex items-center gap-1">
+                <span className="text-sm">₹</span>
+                <Input
+                  type="number"
+                  value={type === 'lunch' ? (thaliMenu.lunchPrice ?? 80) : (thaliMenu.dinnerPrice ?? 90)}
+                  onChange={(e) => updateThaliPrice(type, Number(e.target.value))}
+                  className="h-8 w-20 text-sm font-bold border-primary/30"
+                />
+              </div>
+              <span className="text-xs text-muted-foreground">per plate for students</span>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="space-y-6">
-                {renderSection(type, "BHAAJI (2 Slots)", 'bhaji')}
+                {renderSection(type, "BHAAJI", 'bhaji')}
                 {renderSection(type, "BREAD", 'bread')}
               </div>
               <div className="space-y-6">

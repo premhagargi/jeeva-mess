@@ -405,6 +405,14 @@ export function useStore() {
     await saveThaliMenu(newMenu);
   }, []);
 
+  const updateThaliPrice = useCallback(async (type: 'lunch' | 'dinner', price: number) => {
+    const key = type === 'lunch' ? 'lunchPrice' : 'dinnerPrice';
+    const newMenu = { ...globalThaliMenu, [key]: price };
+    globalThaliMenu = newMenu;
+    notify();
+    await saveThaliMenu(newMenu);
+  }, []);
+
   // ── Admin management ──────────────────────────────────────
 
   const registerAdmin = useCallback(async (name: string, email: string, password: string, role: AdminRole): Promise<boolean> => {
@@ -443,6 +451,7 @@ export function useStore() {
     updateThaliItem,
     addThaliItem,
     removeThaliItem,
+    updateThaliPrice,
     registerAdmin,
   };
 }

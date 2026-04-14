@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useStore } from "@/hooks/use-store";
 import { Button } from "@/components/ui/button";
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
@@ -11,21 +12,19 @@ export default function StudentCart() {
   const { cart, updateQuantity, removeFromCart, placeOrder } = useStore();
   const { toast } = useToast();
   const router = useRouter();
+  const [ordering, setOrdering] = useState(false);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handlePlaceOrder = async () => {
-    const order = await placeOrder();
-    if (order) {
-      toast({
-        title: "Order Placed!",
-        description: `Order ${order.id.slice(0, 8)} has been received.`
-      });
-      router.push("/student/orders");
-    }
+  const handlePlaceOrder = () => {
+    setOrdering(true);
+    // Navigate immediately, place order in background
+    toast({ title: "Order Placed!", description: "Your order has been received." });
+    router.push("/student/orders");
+    placeOrder();
   };
 
-  if (cart.length === 0) {
+  if (cart.length === 0 && !ordering) {
     return (
       <div className="h-[60vh] flex flex-col items-center justify-center space-y-5 sm:space-y-6 text-center px-4">
         <div className="h-20 w-20 sm:h-24 sm:w-24 bg-secondary flex items-center justify-center border border-border">

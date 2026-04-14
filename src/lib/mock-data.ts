@@ -20,6 +20,8 @@ export interface ThaliItem {
 export interface ThaliMenu {
   lunch: ThaliItem[];
   dinner: ThaliItem[];
+  lunchPrice?: number;
+  dinnerPrice?: number;
 }
 
 export interface Student {

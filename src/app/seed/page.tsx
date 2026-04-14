@@ -72,7 +72,9 @@ const SEED_THALI_MENU = {
     { id: 'd5', name: 'Dal Tadka', type: 'sambar' },
     { id: 'd6', name: 'Salad', type: 'side' },
     { id: 'd7', name: 'Thecha', type: 'side' },
-  ]
+  ],
+  lunchPrice: 80,
+  dinnerPrice: 90,
 };
 
 const SEED_DASHBOARD_CONFIG = {

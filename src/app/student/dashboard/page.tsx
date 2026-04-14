@@ -7,13 +7,25 @@ import { ArrowRight, UtensilsCrossed, CalendarDays, History } from "lucide-react
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+const TYPE_LABELS: Record<string, string> = {
+  bhaji: 'Bhaaji',
+  bread: 'Bread',
+  rice: 'Rice',
+  sambar: 'Sambar',
+  side: 'Sides',
+};
+
 export default function StudentDashboard() {
-  const { user, orders, menuItems, dashboardConfig } = useStore();
+  const { user, orders, thaliMenu, dashboardConfig } = useStore();
   const latestOrder = orders.find(o => o.studentId === user?.id);
   const studentOrderCount = orders.filter(o => o.studentId === user?.id).length;
 
-  const todaysSpecial = dashboardConfig?.todaysSpecial || (menuItems[0]?.name ?? "Check Menu");
-  const todaysSpecialSub = dashboardConfig?.todaysSpecialSub || "Today's Highlight";
+  const todaysSpecial = dashboardConfig?.todaysSpecial || "Today's Thali";
+  const todaysSpecialSub = dashboardConfig?.todaysSpecialSub || "Check the menu";
+
+  // Build thali preview from lunch items
+  const lunchItems = thaliMenu.lunch || [];
+  const lunchPreview = lunchItems.slice(0, 4).map(i => i.name).join(', ');
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -44,36 +56,73 @@ export default function StudentDashboard() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8 sm:gap-10">
+        {/* Today's Thali */}
         <section className="space-y-4 sm:space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl">Featured Meals</h2>
+            <h2 className="text-lg sm:text-xl">Today's Thali</h2>
             <Link href="/student/menu" className="text-xs font-bold hover:text-accent flex items-center gap-1 transition-colors">
-              Full Menu <ArrowRight className="h-3 w-3" />
+              Order Now <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-          <div className="grid gap-3 sm:gap-4">
-            {menuItems.slice(0, 3).map((item) => (
-              <div key={item.id} className="group border border-border p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:border-primary active:border-primary transition-all cursor-default">
-                <div className="h-14 w-14 sm:h-16 sm:w-16 bg-muted flex-shrink-0 border border-border">
-                  <img src={item.image} alt={item.name} className="h-full w-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all" />
+
+          {/* Lunch Thali Preview */}
+          {lunchItems.length > 0 ? (
+            <Card className="border-primary/20 shadow-none bg-primary/5">
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold">Lunch Thali</h3>
+                  <span className="font-bold text-primary text-lg">₹{thaliMenu.lunchPrice ?? 80}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold truncate text-[14px] sm:text-[16px]">{item.name}</h4>
-                  <p className="text-xs sm:text-xs text-muted-foreground truncate font-bold">{item.category}</p>
+                <div className="space-y-2">
+                  {Object.entries(
+                    lunchItems.reduce((acc, item) => {
+                      if (!acc[item.type]) acc[item.type] = [];
+                      acc[item.type].push(item.name);
+                      return acc;
+                    }, {} as Record<string, string[]>)
+                  ).map(([type, names]) => (
+                    <div key={type} className="flex gap-2 text-sm">
+                      <span className="text-muted-foreground font-semibold text-xs w-16 shrink-0">{TYPE_LABELS[type] || type}</span>
+                      <span className="font-medium">{names.join(', ')}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="text-right shrink-0">
-                  <p className="font-bold text-base sm:text-lg">{item.price}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="p-8 text-center border border-dashed border-border bg-secondary/20 rounded-lg">
+              <p className="text-xs font-bold text-muted-foreground">No menu set for today</p>
+            </div>
+          )}
+
+          {/* Dinner Thali Preview */}
+          {(thaliMenu.dinner || []).length > 0 && (
+            <Card className="border-border shadow-none bg-secondary/30">
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold">Dinner Thali</h3>
+                  <span className="font-bold text-primary text-lg">₹{thaliMenu.dinnerPrice ?? 90}</span>
                 </div>
-              </div>
-            ))}
-            {menuItems.length === 0 && (
-              <div className="p-8 text-center border border-dashed border-border bg-secondary/20">
-                <p className="text-xs font-bold text-muted-foreground">No menu items yet</p>
-              </div>
-            )}
-          </div>
+                <div className="space-y-2">
+                  {Object.entries(
+                    (thaliMenu.dinner || []).reduce((acc, item) => {
+                      if (!acc[item.type]) acc[item.type] = [];
+                      acc[item.type].push(item.name);
+                      return acc;
+                    }, {} as Record<string, string[]>)
+                  ).map(([type, names]) => (
+                    <div key={type} className="flex gap-2 text-sm">
+                      <span className="text-muted-foreground font-semibold text-xs w-16 shrink-0">{TYPE_LABELS[type] || type}</span>
+                      <span className="font-medium">{names.join(', ')}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </section>
 
+        {/* Quick Track */}
         <section className="space-y-4 sm:space-y-6">
           <h2 className="text-lg sm:text-xl">Quick Track</h2>
           {latestOrder ? (
@@ -97,7 +146,7 @@ export default function StudentDashboard() {
                     {latestOrder.items.slice(0, 2).map((i, idx) => (
                       <div key={idx} className="flex justify-between text-sm gap-2">
                         <span className="font-medium truncate">{i.quantity}x {i.name}</span>
-                        <span className="font-bold shrink-0">{i.price * i.quantity}</span>
+                        <span className="font-bold shrink-0">₹{i.price * i.quantity}</span>
                       </div>
                     ))}
                     {latestOrder.items.length > 2 && (
@@ -106,7 +155,7 @@ export default function StudentDashboard() {
                   </div>
                   <div className="pt-4 border-t border-border flex justify-between items-center">
                     <span className="font-bold text-sm">Amount Paid</span>
-                    <span className="font-bold text-lg sm:text-xl">{latestOrder.total}</span>
+                    <span className="font-bold text-lg sm:text-xl">₹{latestOrder.total}</span>
                   </div>
                   <Button asChild className="w-full btn-primary-action">
                     <Link href="/student/orders">Track in Detail</Link>
@@ -115,7 +164,7 @@ export default function StudentDashboard() {
               </CardContent>
             </Card>
           ) : (
-            <div className="p-10 sm:p-12 text-center border border-dashed border-border bg-secondary/20">
+            <div className="p-10 sm:p-12 text-center border border-dashed border-border bg-secondary/20 rounded-lg">
               <p className="text-xs font-bold text-muted-foreground">No recent meal activity</p>
             </div>
           )}
