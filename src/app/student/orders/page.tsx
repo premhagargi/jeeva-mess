@@ -29,7 +29,7 @@ export default function StudentOrders() {
                 <div className="flex-1 space-y-3 sm:space-y-4">
                   <div className="flex items-center justify-between md:justify-start gap-3 sm:gap-4">
                     <div className="space-y-0.5 min-w-0">
-                      <h3 className="text-base sm:text-lg font-bold">{order.id}</h3>
+                      <h3 className="text-base sm:text-lg font-bold">Order #{studentOrders.length - studentOrders.indexOf(order)}</h3>
                       <p className="text-xs sm:text-xs font-bold text-muted-foreground">
                         {format(new Date(order.createdAt), 'MMM dd, yyyy · hh:mm a')}
                       </p>
@@ -45,16 +45,16 @@ export default function StudentOrders() {
 
                   <div className="bg-secondary p-3 sm:p-4 space-y-2">
                     {order.items.map((item, idx) => (
-                      <div key={idx} className="space-y-0.5">
-                        <div className="flex justify-between items-center text-xs sm:text-sm gap-2">
+                      <div key={idx} className="space-y-1">
+                        <div className="flex justify-between items-center text-xs gap-2">
                           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                             <span className="font-bold text-accent w-5 sm:w-6 shrink-0">{item.quantity}x</span>
-                            <span className="font-medium truncate">{item.name}</span>
+                            <span className="text-muted-foreground truncate">{item.name}</span>
                           </div>
                           <span className="font-bold shrink-0">₹{item.price * item.quantity}</span>
                         </div>
                         {item.description && (
-                          <p className="text-[11px] text-muted-foreground leading-tight pl-6 sm:pl-8">{item.description}</p>
+                          <p className="text-sm sm:text-base font-semibold leading-snug pl-6 sm:pl-8">{item.description}</p>
                         )}
                       </div>
                     ))}

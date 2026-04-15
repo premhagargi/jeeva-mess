@@ -166,13 +166,13 @@ export default function AdminOrders() {
                 {/* Order items */}
                 <div className="bg-secondary/50 p-2 mb-2 space-y-1">
                   {order.items.map((item, idx) => (
-                    <div key={idx} className="space-y-0.5">
-                      <div className="flex justify-between text-xs gap-2">
-                        <span className="truncate font-medium">{item.quantity}x {item.name}</span>
+                    <div key={idx} className="space-y-1">
+                      <div className="flex justify-between text-xs text-muted-foreground gap-2">
+                        <span className="truncate">{item.quantity}x {item.name}</span>
                         <span className="font-bold shrink-0">{item.price * item.quantity}</span>
                       </div>
                       {item.description && (
-                        <p className="text-[11px] text-muted-foreground leading-tight pl-4">{item.description}</p>
+                        <p className="text-sm font-semibold leading-snug pl-4">{item.description}</p>
                       )}
                     </div>
                   ))}

@@ -8,9 +8,10 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PullToRefresh } from "@/components/shared/pull-to-refresh";
 import { PageLoader } from "@/components/shared/page-loader";
+import { LogOut } from "lucide-react";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
-  const { user, isAdmin, authLoading, dataLoading } = useStore();
+  const { user, isAdmin, authLoading, dataLoading, logout } = useStore();
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
@@ -65,10 +66,17 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="text-right">
+              <div className="text-right hidden sm:block">
                 <p className="concierge-text text-muted-foreground text-xs">Member</p>
-                <p className="text-xs font-bold hidden sm:block">{user?.name || "Administrator"}</p>
+                <p className="text-xs font-bold">{user?.name || "Administrator"}</p>
               </div>
+              <button
+                onClick={async () => { await logout(); router.push("/"); }}
+                className="md:hidden flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-destructive border border-destructive/30 hover:bg-destructive/10 transition-colors"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Logout
+              </button>
             </div>
           </div>
         </header>

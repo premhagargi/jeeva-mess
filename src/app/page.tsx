@@ -44,10 +44,10 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 w-full max-w-4xl">
+        <div className="flex flex-col items-center gap-6 sm:gap-8 w-full max-w-lg">
           <Link
             href="/student/login"
-            className="group relative border border-border p-6 sm:p-10 md:p-12 flex flex-col items-center text-center space-y-4 sm:space-y-6 hover:bg-primary hover:text-primary-foreground transition-all duration-300 active:scale-[0.98]"
+            className="group relative border border-border p-6 sm:p-10 md:p-12 w-full flex flex-col items-center text-center space-y-4 sm:space-y-6 hover:bg-primary hover:text-primary-foreground transition-all duration-300 active:scale-[0.98]"
           >
             <Utensils className="h-10 w-10 sm:h-12 sm:w-12 text-accent group-hover:text-primary-foreground transition-colors" />
             <div className="space-y-1.5 sm:space-y-2">
@@ -63,18 +63,11 @@ export default function Home() {
 
           <Link
             href="/admin/login"
-            className="group relative border border-border p-6 sm:p-10 md:p-12 flex flex-col items-center text-center space-y-4 sm:space-y-6 hover:bg-primary hover:text-primary-foreground transition-all duration-300 active:scale-[0.98]"
+            className="group flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ShieldCheck className="h-10 w-10 sm:h-12 sm:w-12 text-accent group-hover:text-primary-foreground transition-colors" />
-            <div className="space-y-1.5 sm:space-y-2">
-              <h2 className="text-xl sm:text-2xl font-bold">Admin Portal</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground group-hover:text-primary-foreground/70">
-                Manage orders, monitor kitchen status, and oversee mess members.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 font-bold text-xs">
-              Manage <ArrowRight className="h-3 w-3" />
-            </div>
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span className="font-medium">Admin Portal</span>
+            <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </div>
