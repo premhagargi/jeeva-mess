@@ -5,13 +5,13 @@ import { ServiceWorkerRegistrar } from "@/components/shared/sw-register";
 import { InstallPrompt } from "@/components/shared/install-prompt";
 
 export const metadata: Metadata = {
-  title: 'Jeeva Eats | Premium Student Mess',
+  title: 'Jeeva Café | Premium Student Mess',
   description: 'A modern subscription mess service for students.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Jeeva Eats',
+    title: 'Jeeva Café',
   },
   icons: {
     icon: '/favicon.svg',

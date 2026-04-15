@@ -173,7 +173,7 @@ export default function SeedPage() {
             </div>
             <div>
               <CardTitle className="text-xl font-bold">Database Seed</CardTitle>
-              <CardDescription className="concierge-text text-xs">Initialize Jeeva Eats with default data</CardDescription>
+              <CardDescription className="concierge-text text-xs">Initialize Jeeva Café with default data</CardDescription>
             </div>
           </div>
         </CardHeader>

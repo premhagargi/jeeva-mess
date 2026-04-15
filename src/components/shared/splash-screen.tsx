@@ -58,7 +58,7 @@ export function SplashScreen() {
 
       {/* Brand */}
       <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
-        Jeeva Eats
+        Jeeva Café
       </h1>
       <p className="text-white/70 text-sm font-medium">
         South Indian Heritage Kitchen

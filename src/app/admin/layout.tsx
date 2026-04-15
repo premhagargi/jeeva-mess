@@ -80,7 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="w-full flex items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-2">
               <div className="md:hidden">
-                <h1 className="text-lg font-bold">Jeeva Eats</h1>
+                <h1 className="text-lg font-bold">Jeeva Café</h1>
               </div>
               <div className="hidden md:block">
                 <SidebarTrigger className="-ml-1" />

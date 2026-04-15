@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jeeva-eats-v1';
+const CACHE_NAME = 'jeeva-cafe-v1';
 const STATIC_ASSETS = [
   '/',
   '/student/login',

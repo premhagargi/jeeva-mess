@@ -4,5 +4,5 @@
   <path d="M176 200 C176 200 216 280 256 280 C296 280 336 200 336 200" fill="none" stroke="#FFF" stroke-width="14" stroke-linecap="round"/>
   <line x1="256" y1="280" x2="256" y2="340" stroke="#FFF" stroke-width="14" stroke-linecap="round"/>
   <line x1="210" y1="340" x2="302" y2="340" stroke="#FFF" stroke-width="14" stroke-linecap="round"/>
-  <text x="256" y="430" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="800" fill="#FFF" text-anchor="middle">JEEVA EATS</text>
+  <text x="256" y="430" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="800" fill="#FFF" text-anchor="middle">JEEVA CAFÉ</text>
 </svg>

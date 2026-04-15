@@ -53,7 +53,7 @@ export function AppSidebar() {
       <SidebarHeader className="p-6">
         <div className="flex flex-col gap-1">
           <span className="concierge-text text-accent">Est. 2026</span>
-          <h1 className="text-2xl font-bold leading-none">Jeeva Eats</h1>
+          <h1 className="text-2xl font-bold leading-none">Jeeva Café</h1>
         </div>
       </SidebarHeader>
       <SidebarContent>

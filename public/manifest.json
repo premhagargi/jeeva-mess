@@ -1,6 +1,6 @@
 {
-  "name": "Jeeva Eats",
-  "short_name": "Jeeva Eats",
+  "name": "Jeeva Café",
+  "short_name": "Jeeva Café",
   "description": "Premium student mess service - order meals, manage subscriptions",
   "start_url": "/",
   "display": "standalone",

@@ -26,7 +26,7 @@ export default function Home() {
     return (
       <main className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-3">
-          <h1 className="text-3xl font-bold">Jeeva Eats</h1>
+          <h1 className="text-3xl font-bold">Jeeva Café</h1>
           <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       </main>
@@ -38,7 +38,7 @@ export default function Home() {
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:p-6 space-y-8 sm:space-y-12">
         <header className="text-center space-y-3 sm:space-y-4">
           <p className="concierge-text text-accent">South Indian Heritage Kitchen</p>
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold">Jeeva Eats</h1>
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold">Jeeva Café</h1>
           <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
             Traditional flavors meets modern convenience. Premium subscription mess service for the discerning student.
           </p>

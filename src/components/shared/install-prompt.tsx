@@ -60,7 +60,7 @@ export function InstallPrompt() {
             <Download className="h-5 w-5 text-amber-600 animate-bounce" />
           </div>
           <div>
-            <p className="font-bold text-sm">Installing Jeeva Eats...</p>
+            <p className="font-bold text-sm">Installing Jeeva Café...</p>
             <p className="text-xs text-muted-foreground">The app is being added to your home screen.</p>
           </div>
         </div>
@@ -90,7 +90,7 @@ export function InstallPrompt() {
             </svg>
           </div>
           <div>
-            <p className="font-bold text-sm">Install Jeeva Eats</p>
+            <p className="font-bold text-sm">Install Jeeva Café</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Add to your home screen for quick access. Works offline too!
             </p>
