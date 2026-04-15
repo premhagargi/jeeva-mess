@@ -45,12 +45,17 @@ export default function StudentOrders() {
 
                   <div className="bg-secondary p-3 sm:p-4 space-y-2">
                     {order.items.map((item, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-xs sm:text-sm gap-2">
-                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                          <span className="font-bold text-accent w-5 sm:w-6 shrink-0">{item.quantity}x</span>
-                          <span className="font-medium truncate">{item.name}</span>
+                      <div key={idx} className="space-y-0.5">
+                        <div className="flex justify-between items-center text-xs sm:text-sm gap-2">
+                          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                            <span className="font-bold text-accent w-5 sm:w-6 shrink-0">{item.quantity}x</span>
+                            <span className="font-medium truncate">{item.name}</span>
+                          </div>
+                          <span className="font-bold shrink-0">₹{item.price * item.quantity}</span>
                         </div>
-                        <span className="font-bold shrink-0">₹{item.price * item.quantity}</span>
+                        {item.description && (
+                          <p className="text-[11px] text-muted-foreground leading-tight pl-6 sm:pl-8">{item.description}</p>
+                        )}
                       </div>
                     ))}
                   </div>

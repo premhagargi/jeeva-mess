@@ -144,9 +144,14 @@ export default function StudentDashboard() {
                 <div className="p-4 sm:p-6 space-y-4">
                   <div className="space-y-2">
                     {latestOrder.items.slice(0, 2).map((i, idx) => (
-                      <div key={idx} className="flex justify-between text-sm gap-2">
-                        <span className="font-medium truncate">{i.quantity}x {i.name}</span>
-                        <span className="font-bold shrink-0">₹{i.price * i.quantity}</span>
+                      <div key={idx} className="space-y-0.5">
+                        <div className="flex justify-between text-sm gap-2">
+                          <span className="font-medium truncate">{i.quantity}x {i.name}</span>
+                          <span className="font-bold shrink-0">₹{i.price * i.quantity}</span>
+                        </div>
+                        {i.description && (
+                          <p className="text-[11px] text-muted-foreground leading-tight pl-4">{i.description}</p>
+                        )}
                       </div>
                     ))}
                     {latestOrder.items.length > 2 && (

@@ -59,6 +59,9 @@ export default function StudentCart() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold truncate text-[14px] sm:text-[16px]">{item.name}</h3>
+                  {item.description && (
+                    <p className="text-[11px] sm:text-xs text-muted-foreground leading-tight truncate">{item.description}</p>
+                  )}
                   <p className="text-xs sm:text-sm text-muted-foreground">₹{item.price}</p>
                   <p className="font-bold text-base sm:hidden mt-1">₹{item.price * item.quantity}</p>
                 </div>
