@@ -12,6 +12,7 @@ import {
   query,
   orderBy,
   where,
+  runTransaction,
   Unsubscribe,
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -82,8 +83,13 @@ export async function addStudent(student: Student): Promise<void> {
     name: student.name,
     email: student.email,
     mobile: student.mobile || '',
+    credits: typeof student.credits === 'number' ? student.credits : 0,
     createdAt: student.createdAt || new Date().toISOString(),
   });
+}
+
+export async function updateStudent(id: string, data: Partial<Student>): Promise<void> {
+  await updateDoc(doc(db, 'students', id), data);
 }
 
 export async function deleteStudent(id: string): Promise<void> {
@@ -113,7 +119,46 @@ export async function createOrder(order: Omit<Order, 'id'>): Promise<string> {
 }
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
+  if (status === 'Dispatched') {
+    await dispatchOrderAndDeductCredits(orderId);
+    return;
+  }
   await updateDoc(doc(db, 'orders', orderId), { status });
+}
+
+// Atomic dispatch: flips status to Dispatched and deducts the order's dispatchAmount
+// total from the student's credits exactly once. The `creditsDeducted` flag guards
+// against double deduction if this is invoked more than once for the same order.
+export async function dispatchOrderAndDeductCredits(orderId: string): Promise<void> {
+  const orderRef = doc(db, 'orders', orderId);
+  await runTransaction(db, async (tx) => {
+    const orderSnap = await tx.get(orderRef);
+    if (!orderSnap.exists()) throw new Error('Order not found');
+    const order = orderSnap.data() as Order;
+
+    if (order.creditsDeducted) {
+      // Idempotent: just ensure status is Dispatched and return.
+      if (order.status !== 'Dispatched') tx.update(orderRef, { status: 'Dispatched' });
+      return;
+    }
+
+    const totalDeduction = (order.items || []).reduce((sum, item) => {
+      const per = typeof item.dispatchAmount === 'number' ? item.dispatchAmount : 0;
+      return sum + per * (item.quantity || 1);
+    }, 0);
+
+    if (totalDeduction > 0 && order.studentId) {
+      const studentRef = doc(db, 'students', order.studentId);
+      const studentSnap = await tx.get(studentRef);
+      if (studentSnap.exists()) {
+        const current = studentSnap.data() as Student;
+        const currentCredits = typeof current.credits === 'number' ? current.credits : 0;
+        tx.update(studentRef, { credits: currentCredits - totalDeduction });
+      }
+    }
+
+    tx.update(orderRef, { status: 'Dispatched', creditsDeducted: true });
+  });
 }
 
 // ─── Admins ───────────────────────────────────────────────────

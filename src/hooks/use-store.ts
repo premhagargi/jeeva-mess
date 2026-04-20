@@ -10,6 +10,7 @@ import {
   subscribeStudents,
   getStudentByEmail,
   addStudent as addStudentDoc,
+  updateStudent as updateStudentDoc,
   deleteStudent as deleteStudentDoc,
   subscribeOrders,
   fetchOrdersFromServer,
@@ -25,6 +26,9 @@ import type { Order, MenuItem, Student, ThaliMenu, ThaliItem, ThaliItemType, Adm
 
 interface CartItem extends MenuItem {
   quantity: number;
+  selectedThaliItems?: string[];
+  // Sum of selected thali items' `amount` — deducted from student credits on dispatch.
+  dispatchAmount?: number;
 }
 
 // ─── localStorage cache helpers ───────────────────────────────
@@ -126,6 +130,14 @@ function initFirestoreListeners() {
     }),
     subscribeStudents((students) => {
       globalStudents = students;
+      // Keep currentUser in sync with latest Firestore state (e.g. credits changes).
+      if (currentUser) {
+        const fresh = students.find(s => s.id === currentUser!.id);
+        if (fresh) {
+          currentUser = fresh;
+          saveAuthCache({ user: currentUser, admin: currentAdmin, isAdmin });
+        }
+      }
       notify();
     }),
     subscribeOrders((orders) => {
@@ -266,7 +278,7 @@ export function useStore() {
 
   // ── Cart actions (client-side only, instant) ──────────────
 
-  const addToCart = useCallback((item: MenuItem) => {
+  const addToCart = useCallback((item: MenuItem & { dispatchAmount?: number; selectedThaliItems?: string[] }) => {
     const existing = globalCart.find((i) => i.id === item.id);
     if (existing) {
       existing.quantity += 1;
@@ -302,9 +314,17 @@ export function useStore() {
     const orderData = {
       studentId: currentUser.id,
       studentName: currentUser.name,
-      items: globalCart.map(i => ({ name: i.name, quantity: i.quantity, price: i.price, description: i.description })),
+      items: globalCart.map(i => ({
+        name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+        description: i.description,
+        dispatchAmount: i.dispatchAmount ?? 0,
+        selectedThaliItems: i.selectedThaliItems ?? [],
+      })),
       total: globalCart.reduce((sum, i) => sum + i.price * i.quantity, 0),
       status: 'Pending' as const,
+      creditsDeducted: false,
       createdAt: new Date().toISOString(),
     };
 
@@ -355,6 +375,18 @@ export function useStore() {
     }
   }, []);
 
+  const updateStudent = useCallback(async (id: string, data: Partial<Student>): Promise<boolean> => {
+    try {
+      // Optimistic
+      globalStudents = globalStudents.map(s => s.id === id ? { ...s, ...data } : s);
+      notify();
+      await updateStudentDoc(id, data);
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
   const deleteStudent = useCallback(async (id: string): Promise<boolean> => {
     try {
       // Optimistic
@@ -378,16 +410,26 @@ export function useStore() {
     await saveThaliMenu(newMenu);
   }, []);
 
-  const addThaliItem = useCallback(async (type: 'lunch' | 'dinner', name: string, itemType: ThaliItemType = 'side') => {
+  const addThaliItem = useCallback(async (type: 'lunch' | 'dinner', name: string, itemType: ThaliItemType = 'side', amount: number = 0) => {
     const newItem: ThaliItem = {
       id: Math.random().toString(36).substr(2, 9),
       name,
       type: itemType,
+      amount,
     };
     const newMenu = {
       ...globalThaliMenu,
       [type]: [...globalThaliMenu[type], newItem],
     };
+    // Optimistic
+    globalThaliMenu = newMenu;
+    notify();
+    await saveThaliMenu(newMenu);
+  }, []);
+
+  const updateThaliItemAmount = useCallback(async (type: 'lunch' | 'dinner', itemId: string, amount: number) => {
+    const updated = globalThaliMenu[type].map(i => i.id === itemId ? { ...i, amount } : i);
+    const newMenu = { ...globalThaliMenu, [type]: updated };
     // Optimistic
     globalThaliMenu = newMenu;
     notify();
@@ -447,8 +489,10 @@ export function useStore() {
     updateOrderStatus,
     refreshOrders,
     registerStudent,
+    updateStudent,
     deleteStudent,
     updateThaliItem,
+    updateThaliItemAmount,
     addThaliItem,
     removeThaliItem,
     updateThaliPrice,

@@ -10,10 +10,11 @@ import { useToast } from "@/hooks/use-toast";
 import { ThaliItemType } from "@/lib/mock-data";
 
 export default function AdminMenuManagement() {
-  const { thaliMenu, updateThaliItem, addThaliItem, removeThaliItem, updateThaliPrice } = useStore();
+  const { thaliMenu, updateThaliItem, updateThaliItemAmount, addThaliItem, removeThaliItem, updateThaliPrice } = useStore();
   const { toast } = useToast();
 
   const [newItemName, setNewItemName] = useState("");
+  const [newItemAmount, setNewItemAmount] = useState("");
   const [isAddingSide, setIsAddingSide] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
@@ -43,20 +44,30 @@ export default function AdminMenuManagement() {
   const handleStartAdd = (type: 'lunch' | 'dinner') => {
     setIsAddingSide(type);
     setNewItemName("");
+    setNewItemAmount("");
     setEditingId(null);
   };
 
   const handleCancelAdd = () => {
     setIsAddingSide(null);
     setNewItemName("");
+    setNewItemAmount("");
   };
 
   const handleAddSide = async (type: 'lunch' | 'dinner') => {
     if (!newItemName.trim()) return;
-    await addThaliItem(type, newItemName, 'side');
+    const amt = Number(newItemAmount) || 0;
+    await addThaliItem(type, newItemName, 'side', amt);
     setNewItemName("");
+    setNewItemAmount("");
     setIsAddingSide(null);
     toast({ title: "Side Added", description: `${newItemName} added to menu.` });
+  };
+
+  const handleAmountChange = async (type: 'lunch' | 'dinner', itemId: string, value: string) => {
+    const n = value === "" ? 0 : Number(value);
+    if (Number.isNaN(n) || n < 0) return;
+    await updateThaliItemAmount(type, itemId, n);
   };
 
   useEffect(() => {
@@ -89,106 +100,132 @@ export default function AdminMenuManagement() {
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex items-center px-2 sm:px-3 min-h-[44px] sm:h-11 hover:bg-secondary/5 group transition-colors relative"
+              className="flex items-center gap-2 px-2 sm:px-3 min-h-[44px] sm:h-11 hover:bg-secondary/5 group transition-colors"
               ref={editingId === item.id ? editContainerRef : null}
             >
-              <div className="flex-1 flex items-center min-w-0">
-                <div className="relative flex-1 flex items-center">
-                  <Input
-                    value={editingId === item.id ? tempValue : item.name}
-                    onChange={(e) => setTempValue(e.target.value)}
-                    onFocus={() => handleStartEdit(item.id, item.name)}
-                    className="h-8 border-transparent bg-transparent hover:bg-secondary/10 focus:bg-card focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text pr-20"
-                  />
-                  {editingId === item.id && (
-                    <div className="absolute right-1 flex items-center gap-0.5 bg-card pl-1 shadow-[-10px_0_10px_hsl(40,30%,99%)] z-10">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 sm:h-7 sm:w-7 text-success hover:bg-success/10"
-                        onClick={() => handleSaveEdit(type, item.id)}
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:bg-secondary"
-                        onClick={handleCancelEdit}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  )}
-                  {editingId !== item.id && (
-                    <div className="absolute right-1 sm:right-2 flex items-center gap-1 sm:gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/5 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
-                        onClick={() => removeThaliItem(type, item.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                      <span className="text-xs font-bold text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors pointer-events-none select-none hidden sm:inline">Edit</span>
-                    </div>
-                  )}
-                </div>
+              <div className="flex-1 flex items-center min-w-0 relative">
+                <Input
+                  value={editingId === item.id ? tempValue : item.name}
+                  onChange={(e) => setTempValue(e.target.value)}
+                  onFocus={() => handleStartEdit(item.id, item.name)}
+                  className="h-8 border-transparent bg-transparent hover:bg-secondary/10 focus:bg-card focus:border-accent text-sm font-bold w-full transition-all px-2 cursor-text pr-14"
+                />
+                {editingId === item.id && (
+                  <div className="absolute right-1 flex items-center gap-0.5 bg-card pl-1 shadow-[-10px_0_10px_hsl(40,30%,99%)] z-10">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 sm:h-7 sm:w-7 text-success hover:bg-success/10"
+                      onClick={() => handleSaveEdit(type, item.id)}
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:bg-secondary"
+                      onClick={handleCancelEdit}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                )}
               </div>
+
+              {/* Amount (admin-only, deducted from student credits on dispatch) */}
+              <div className="flex items-center gap-1 shrink-0 border border-border/40 bg-secondary/30 px-1.5">
+                <span className="text-xs font-bold text-muted-foreground">₹</span>
+                <Input
+                  type="number"
+                  min={0}
+                  defaultValue={typeof item.amount === 'number' ? item.amount : 0}
+                  onBlur={(e) => handleAmountChange(type, item.id, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur();
+                  }}
+                  className="h-7 w-14 border-0 bg-transparent text-xs font-bold px-1 text-right focus-visible:ring-0"
+                  title="Amount deducted from student credits on dispatch"
+                />
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/5 shrink-0"
+                onClick={() => removeThaliItem(type, item.id)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
             </div>
           ))}
           {canAdd && (
             <div
-              className="flex items-center px-2 sm:px-3 min-h-[44px] sm:h-11 bg-secondary/20 group/add relative"
+              className="flex items-center gap-2 px-2 sm:px-3 min-h-[44px] sm:h-11 bg-secondary/20 group/add"
               ref={isAddingSide === addKey ? addContainerRef : null}
             >
-              <div className="flex-1 flex items-center min-w-0">
-                <div className="relative flex-1 flex items-center">
-                  <Plus className="h-3.5 w-3.5 text-muted-foreground mr-2 shrink-0" />
-                  <Input
-                    placeholder={placeholderText}
-                    value={isAddingSide === addKey ? newItemName : ""}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                    onFocus={() => { setIsAddingSide(addKey); setNewItemName(""); setEditingId(null); }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newItemName.trim()) {
-                        addThaliItem(type, newItemName, itemType);
-                        setNewItemName("");
-                        setIsAddingSide(null);
-                        toast({ title: "Added", description: `${newItemName} added to ${label}.` });
-                      }
-                    }}
-                    className="h-8 border-transparent bg-transparent focus:bg-card text-xs italic px-2 w-full transition-all pr-16"
-                  />
-                  {isAddingSide === addKey && (
-                    <div className="absolute right-0 flex items-center gap-0.5 bg-card pl-1 shadow-[-10px_0_10px_hsl(40,30%,99%)] z-10">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 sm:h-7 sm:w-7 text-success hover:bg-success/10"
-                        onClick={() => {
-                          if (newItemName.trim()) {
-                            addThaliItem(type, newItemName, itemType);
-                            setNewItemName("");
-                            setIsAddingSide(null);
-                            toast({ title: "Added", description: `${newItemName} added to ${label}.` });
-                          }
-                        }}
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:bg-secondary"
-                        onClick={handleCancelAdd}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
+              <div className="flex-1 flex items-center min-w-0 relative">
+                <Plus className="h-3.5 w-3.5 text-muted-foreground mr-2 shrink-0" />
+                <Input
+                  placeholder={placeholderText}
+                  value={isAddingSide === addKey ? newItemName : ""}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  onFocus={() => { setIsAddingSide(addKey); setNewItemName(""); setNewItemAmount(""); setEditingId(null); }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newItemName.trim()) {
+                      const amt = Number(newItemAmount) || 0;
+                      addThaliItem(type, newItemName, itemType, amt);
+                      setNewItemName("");
+                      setNewItemAmount("");
+                      setIsAddingSide(null);
+                      toast({ title: "Added", description: `${newItemName} added to ${label}.` });
+                    }
+                  }}
+                  className="h-8 border-transparent bg-transparent focus:bg-card text-xs italic px-2 w-full transition-all"
+                />
               </div>
+
+              {isAddingSide === addKey && (
+                <>
+                  <div className="flex items-center gap-1 shrink-0 border border-border/40 bg-card px-1.5">
+                    <span className="text-xs font-bold text-muted-foreground">₹</span>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      value={newItemAmount}
+                      onChange={(e) => setNewItemAmount(e.target.value)}
+                      className="h-7 w-14 border-0 bg-transparent text-xs font-bold px-1 text-right focus-visible:ring-0"
+                    />
+                  </div>
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 sm:h-7 sm:w-7 text-success hover:bg-success/10"
+                      onClick={() => {
+                        if (newItemName.trim()) {
+                          const amt = Number(newItemAmount) || 0;
+                          addThaliItem(type, newItemName, itemType, amt);
+                          setNewItemName("");
+                          setNewItemAmount("");
+                          setIsAddingSide(null);
+                          toast({ title: "Added", description: `${newItemName} added to ${label}.` });
+                        }
+                      }}
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:bg-secondary"
+                      onClick={handleCancelAdd}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

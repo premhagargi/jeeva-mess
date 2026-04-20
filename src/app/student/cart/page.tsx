@@ -14,7 +14,7 @@ export default function StudentCart() {
   const router = useRouter();
   const [ordering, setOrdering] = useState(false);
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handlePlaceOrder = () => {
     setOrdering(true);
@@ -60,14 +60,8 @@ export default function StudentCart() {
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold truncate text-[14px] sm:text-[16px]">{item.name}</h3>
                   {item.description && (
-                    <p className="text-[11px] sm:text-xs text-muted-foreground leading-tight truncate">{item.description}</p>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground leading-tight line-clamp-2">{item.description}</p>
                   )}
-                  <p className="text-xs sm:text-sm text-muted-foreground">₹{item.price}</p>
-                  <p className="font-bold text-base sm:hidden mt-1">₹{item.price * item.quantity}</p>
-                </div>
-                {/* Desktop price */}
-                <div className="hidden sm:block w-20 text-right font-bold shrink-0">
-                  ₹{item.price * item.quantity}
                 </div>
               </div>
               {/* Quantity controls row */}
@@ -101,19 +95,15 @@ export default function StudentCart() {
         <div className="lg:col-span-4">
           <div className="sticky top-24 space-y-4 sm:space-y-6">
             <div className="border border-border p-4 sm:p-6 bg-secondary space-y-4 sm:space-y-6">
-              <h3 className="text-sm font-bold pb-3 sm:pb-4 border-b border-border">Bill Summary</h3>
+              <h3 className="text-sm font-bold pb-3 sm:pb-4 border-b border-border">Order Summary</h3>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Item Total</span>
-                  <span className="font-medium">₹{total}</span>
+                  <span className="text-muted-foreground">Items in plate</span>
+                  <span className="font-bold">{itemCount}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Mess Benefits</span>
                   <span className="text-accent font-bold">Applied</span>
-                </div>
-                <div className="pt-4 border-t border-border flex justify-between items-center">
-                  <span className="font-bold text-base sm:text-lg">Total Amount</span>
-                  <span className="font-bold text-lg sm:text-xl">₹{total}</span>
                 </div>
               </div>
 
@@ -140,7 +130,7 @@ export default function StudentCart() {
           onClick={handlePlaceOrder}
           className="w-full btn-primary-action shadow-lg flex items-center justify-center gap-2 active:scale-[0.98]"
         >
-          Place Order · ₹{total} <ArrowRight className="h-5 w-5" />
+          Place Order <ArrowRight className="h-5 w-5" />
         </Button>
       </div>
     </div>

@@ -1,0 +1,84 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helpers ──────────────────────────────────────────────
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      // Admin presence is recorded in /admins/{uid}. Anyone with a matching
+      // doc is treated as an admin (role granularity can be enforced later).
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // A student's own doc is keyed by their serial number and their Auth user
+    // is created with email `${serial}@jeeva.eats`. We match ownership on the
+    // email prefix so a student can read (but not mutate) their own record.
+    function isSelfStudent(serial) {
+      return signedIn() && request.auth.token.email == serial + '@jeeva.eats';
+    }
+
+    // Returns true if the request is only changing fields in `allowedKeys`
+    // (i.e. untouched fields are identical to the stored doc).
+    function onlyChanging(allowedKeys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedKeys);
+    }
+
+    // ─── /admins ──────────────────────────────────────────────
+    // Only admins can read/write the admin roster. Auth still works because
+    // loginAsAdmin reads /admins/{uid} after signing in.
+    match /admins/{uid} {
+      allow read, write: if isAdmin();
+    }
+
+    // ─── /students ────────────────────────────────────────────
+    match /students/{serial} {
+      // Admins read all. A student can read only their own doc.
+      allow read: if isAdmin() || isSelfStudent(serial);
+
+      // Only admins create/update/delete. `credits` is admin-only by
+      // virtue of the whole write being gated by isAdmin() — students
+      // can never mutate their own document.
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ─── /orders ──────────────────────────────────────────────
+    match /orders/{orderId} {
+      // Admins read all; a student can read their own orders.
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.studentId + '@jeeva.eats' == request.auth.token.email);
+
+      // A student may place a pending order for themselves. creditsDeducted
+      // must start as false (or absent) so only the dispatch transaction
+      // toggles it to true.
+      allow create: if signedIn()
+        && request.resource.data.studentId + '@jeeva.eats' == request.auth.token.email
+        && request.resource.data.status == 'Pending'
+        && (!('creditsDeducted' in request.resource.data) || request.resource.data.creditsDeducted == false);
+
+      // Only admins can update an order (status, creditsDeducted, etc.).
+      // Students cannot edit their own orders once placed.
+      allow update, delete: if isAdmin();
+    }
+
+    // ─── /menuItems ───────────────────────────────────────────
+    // `amount` lives inside each thali item. It's readable by everyone
+    // signed in (student UI simply chooses not to render it) and writable
+    // only by admins.
+    match /menuItems/{itemId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ─── /config/* ────────────────────────────────────────────
+    // `thaliMenu` (contains ThaliItem.amount) and `dashboard` both live here.
+    // Read for all signed-in users; write admin-only.
+    match /config/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -13,24 +13,33 @@ import {
   DialogTrigger,
   DialogDescription
 } from "@/components/ui/dialog";
-import { CheckCircle2, Copy, Plus, Search, Key, Trash2, Loader2 } from "lucide-react";
+import { CheckCircle2, Copy, Plus, Search, Key, Trash2, Loader2, Wallet, Pencil, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 export default function AdminStudents() {
-  const { students, registerStudent, deleteStudent } = useStore();
+  const { students, registerStudent, updateStudent, deleteStudent } = useStore();
   const { toast } = useToast();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [regStep, setRegStep] = useState<'form' | 'success'>('form');
-  const [formData, setFormData] = useState({ serialNumber: "", name: "", mobile: "" });
+  const [formData, setFormData] = useState({ serialNumber: "", name: "", mobile: "", credits: "" });
   const [registeredStudent, setRegisteredStudent] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [editingCreditsId, setEditingCreditsId] = useState<string | null>(null);
+  const [creditsDraft, setCreditsDraft] = useState("");
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.serialNumber.length < 3 || formData.serialNumber.length > 4) {
       toast({ variant: "destructive", title: "Invalid Serial", description: "Must be 3-4 digits." });
+      return;
+    }
+
+    const creditsNum = Number(formData.credits);
+    if (formData.credits === "" || Number.isNaN(creditsNum) || creditsNum < 0) {
+      toast({ variant: "destructive", title: "Invalid Credits", description: "Enter a non-negative number." });
       return;
     }
 
@@ -40,6 +49,7 @@ export default function AdminStudents() {
       name: formData.name,
       email: `${formData.serialNumber}@jeeva.eats`,
       mobile: formData.mobile,
+      credits: creditsNum,
       createdAt: new Date().toISOString(),
     });
     setLoading(false);
@@ -64,8 +74,33 @@ export default function AdminStudents() {
   };
 
   const resetReg = () => {
-    setFormData({ serialNumber: "", name: "", mobile: "" });
+    setFormData({ serialNumber: "", name: "", mobile: "", credits: "" });
     setRegStep('form');
+  };
+
+  const startEditCredits = (id: string, current: number) => {
+    setEditingCreditsId(id);
+    setCreditsDraft(String(current ?? 0));
+  };
+
+  const cancelEditCredits = () => {
+    setEditingCreditsId(null);
+    setCreditsDraft("");
+  };
+
+  const saveEditCredits = async (id: string) => {
+    const n = Number(creditsDraft);
+    if (creditsDraft === "" || Number.isNaN(n)) {
+      toast({ variant: "destructive", title: "Invalid amount" });
+      return;
+    }
+    const ok = await updateStudent(id, { credits: n });
+    if (ok) {
+      toast({ title: "Credits updated" });
+      cancelEditCredits();
+    } else {
+      toast({ variant: "destructive", title: "Update failed" });
+    }
   };
 
   const filteredStudents = students.filter(s =>
@@ -154,6 +189,22 @@ export default function AdminStudents() {
                     />
                   </div>
 
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold opacity-70">Credits (Mess Balance)</Label>
+                    <Input
+                      placeholder="e.g. 2500"
+                      type="number"
+                      min={0}
+                      className="h-11 sm:h-12 border-border"
+                      value={formData.credits}
+                      onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground font-bold mt-1">
+                      Amount paid in person at the mess while subscribing.
+                    </p>
+                  </div>
+
                   <Button
                     type="submit"
                     disabled={loading}
@@ -206,31 +257,69 @@ export default function AdminStudents() {
             <p className="concierge-text text-muted-foreground text-xs">No records found</p>
           </div>
         ) : (
-          filteredStudents.map((student) => (
-            <div key={student.id} className="p-3 sm:p-4 bg-card border border-border hover:border-accent active:border-accent transition-all flex items-center justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-accent leading-none mb-1">STU{student.id}</p>
-                <h4 className="font-bold text-[14px] leading-tight truncate">{student.name}</h4>
-                <p className="text-xs font-bold text-muted-foreground truncate">{student.mobile}</p>
-              </div>
+          filteredStudents.map((student) => {
+            const credits = typeof student.credits === 'number' ? student.credits : 0;
+            const isEditing = editingCreditsId === student.id;
+            const isNegative = credits < 0;
+            return (
+              <div key={student.id} className="p-3 sm:p-4 bg-card border border-border hover:border-accent active:border-accent transition-all flex flex-col gap-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-accent leading-none mb-1">STU{student.id}</p>
+                    <h4 className="font-bold text-[14px] leading-tight truncate">{student.name}</h4>
+                    <p className="text-xs font-bold text-muted-foreground truncate">{student.mobile}</p>
+                  </div>
 
-              <div className="shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive transition-colors"
-                  onClick={() => {
-                    if (confirm(`Remove student ${student.name} (STU${student.id})?`)) {
-                      deleteStudent(student.id);
-                      toast({ title: "Student removed" });
-                    }
-                  }}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                  <div className="shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive transition-colors"
+                      onClick={() => {
+                        if (confirm(`Remove student ${student.name} (STU${student.id})?`)) {
+                          deleteStudent(student.id);
+                          toast({ title: "Student removed" });
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 border-t border-border pt-2">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Wallet className="h-3.5 w-3.5" />
+                    <span className="text-xs font-bold">Credits</span>
+                  </div>
+                  {isEditing ? (
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        className="h-8 w-24 text-sm font-bold"
+                        value={creditsDraft}
+                        onChange={(e) => setCreditsDraft(e.target.value)}
+                        autoFocus
+                      />
+                      <Button size="icon" variant="ghost" className="h-8 w-8 text-success hover:bg-success/10" onClick={() => saveEditCredits(student.id)}>
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground" onClick={cancelEditCredits}>
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className={cn("text-sm font-bold", isNegative && "text-destructive")}>₹{credits}</span>
+                      <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-accent" onClick={() => startEditCredits(student.id, credits)}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

@@ -46,12 +46,9 @@ export default function StudentOrders() {
                   <div className="bg-secondary p-3 sm:p-4 space-y-2">
                     {order.items.map((item, idx) => (
                       <div key={idx} className="space-y-1">
-                        <div className="flex justify-between items-center text-xs gap-2">
-                          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                            <span className="font-bold text-accent w-5 sm:w-6 shrink-0">{item.quantity}x</span>
-                            <span className="text-muted-foreground truncate">{item.name}</span>
-                          </div>
-                          <span className="font-bold shrink-0">₹{item.price * item.quantity}</span>
+                        <div className="flex items-center text-xs gap-2">
+                          <span className="font-bold text-accent w-5 sm:w-6 shrink-0">{item.quantity}x</span>
+                          <span className="text-muted-foreground truncate">{item.name}</span>
                         </div>
                         {item.description && (
                           <p className="text-sm sm:text-base font-semibold leading-snug pl-6 sm:pl-8">{item.description}</p>
@@ -61,11 +58,7 @@ export default function StudentOrders() {
                   </div>
                 </div>
 
-                <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-4 pt-3 sm:pt-4 md:pt-0 border-t md:border-t-0 border-border">
-                  <div className="text-right">
-                    <p className="concierge-text text-muted-foreground text-xs sm:text-[12px]">Order Total</p>
-                    <p className="text-xl sm:text-2xl font-bold">₹{order.total}</p>
-                  </div>
+                <div className="flex md:flex-col items-center md:items-end justify-end md:justify-center gap-4 pt-3 sm:pt-4 md:pt-0 border-t md:border-t-0 border-border">
                   <div className="h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center border border-border bg-secondary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>

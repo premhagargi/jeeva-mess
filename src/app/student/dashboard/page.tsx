@@ -3,7 +3,7 @@
 import { useStore } from "@/hooks/use-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, UtensilsCrossed, CalendarDays, History } from "lucide-react";
+import { ArrowRight, UtensilsCrossed, CalendarDays, History, Wallet } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +33,28 @@ export default function StudentDashboard() {
         <p className="concierge-text text-accent">Member Dashboard</p>
         <h1 className="text-2xl sm:text-[28px]">Welcome, {user?.name?.split(' ')[0]}</h1>
       </header>
+
+      <Card className="border-primary/30 shadow-none bg-primary/5">
+        <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-11 w-11 sm:h-12 sm:w-12 bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+              <Wallet className="h-5 w-5 sm:h-6 sm:w-6" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-muted-foreground">Mess Balance</p>
+              <p className="text-xs font-bold text-muted-foreground/70 truncate">Remaining credits</p>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <p className={cn(
+              "text-2xl sm:text-3xl font-bold leading-none",
+              (user?.credits ?? 0) < 0 && "text-destructive"
+            )}>
+              ₹{user?.credits ?? 0}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         {[
@@ -71,7 +93,6 @@ export default function StudentDashboard() {
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold">Lunch Thali</h3>
-                  <span className="font-bold text-primary text-lg">₹{thaliMenu.lunchPrice ?? 80}</span>
                 </div>
                 <div className="space-y-2">
                   {Object.entries(
@@ -101,7 +122,6 @@ export default function StudentDashboard() {
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold">Dinner Thali</h3>
-                  <span className="font-bold text-primary text-lg">₹{thaliMenu.dinnerPrice ?? 90}</span>
                 </div>
                 <div className="space-y-2">
                   {Object.entries(
@@ -145,9 +165,8 @@ export default function StudentDashboard() {
                   <div className="space-y-2">
                     {latestOrder.items.slice(0, 2).map((i, idx) => (
                       <div key={idx} className="space-y-0.5">
-                        <div className="flex justify-between text-sm gap-2">
+                        <div className="flex text-sm gap-2">
                           <span className="font-medium truncate">{i.quantity}x {i.name}</span>
-                          <span className="font-bold shrink-0">₹{i.price * i.quantity}</span>
                         </div>
                         {i.description && (
                           <p className="text-[11px] text-muted-foreground leading-tight pl-4">{i.description}</p>
@@ -157,10 +176,6 @@ export default function StudentDashboard() {
                     {latestOrder.items.length > 2 && (
                       <p className="text-xs font-bold text-muted-foreground">+ {latestOrder.items.length - 2} more items</p>
                     )}
-                  </div>
-                  <div className="pt-4 border-t border-border flex justify-between items-center">
-                    <span className="font-bold text-sm">Amount Paid</span>
-                    <span className="font-bold text-lg sm:text-xl">₹{latestOrder.total}</span>
                   </div>
                   <Button asChild className="w-full btn-primary-action">
                     <Link href="/student/orders">Track in Detail</Link>

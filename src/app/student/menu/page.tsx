@@ -28,7 +28,6 @@ export default function StudentMenu() {
   const [dinnerSelected, setDinnerSelected] = useState<Set<string>>(new Set());
   const [initialized, setInitialized] = useState({ lunch: false, dinner: false });
 
-  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   // Initialize selections with all items selected by default
@@ -97,6 +96,8 @@ export default function StudentMenu() {
 
     const thaliName = `${type === 'lunch' ? 'Lunch' : 'Dinner'} Thali`;
     const description = items.map(i => i.name).join(', ');
+    const dispatchAmount = items.reduce((sum, i) => sum + (typeof i.amount === 'number' ? i.amount : 0), 0);
+    const selectedThaliItems = items.map(i => i.id);
 
     addToCart({
       id: `thali-${type}-${Date.now()}`,
@@ -105,6 +106,8 @@ export default function StudentMenu() {
       price,
       category: type === 'lunch' ? 'Lunch' : 'Dinner',
       image: '',
+      dispatchAmount,
+      selectedThaliItems,
     });
 
     toast({
@@ -116,7 +119,6 @@ export default function StudentMenu() {
   const renderThaliTab = (type: 'lunch' | 'dinner') => {
     const items = thaliMenu[type] || [];
     const selected = getSelections(type);
-    const price = type === 'lunch' ? (thaliMenu.lunchPrice ?? 80) : (thaliMenu.dinnerPrice ?? 90);
 
     // Group items by type
     const grouped = useMemo(() => {
@@ -138,17 +140,11 @@ export default function StudentMenu() {
 
     return (
       <div className="space-y-5">
-        {/* Price banner */}
+        {/* Banner */}
         <Card className="border-primary/20 shadow-none bg-primary/5">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <h3 className="font-bold text-lg">{type === 'lunch' ? 'Lunch' : 'Dinner'} Thali</h3>
-              <p className="text-sm text-muted-foreground">Tap items to add or remove from your plate</p>
-            </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold text-primary">₹{price}</p>
-              <p className="text-xs text-muted-foreground">per plate</p>
-            </div>
+          <CardContent className="p-4">
+            <h3 className="font-bold text-lg">{type === 'lunch' ? 'Lunch' : 'Dinner'} Thali</h3>
+            <p className="text-sm text-muted-foreground">Tap items to add or remove from your plate</p>
           </CardContent>
         </Card>
 
@@ -194,7 +190,7 @@ export default function StudentMenu() {
           onClick={() => handleAddThali(type)}
           className="w-full btn-primary-action flex items-center justify-center gap-2 active:scale-[0.97]"
         >
-          Add {type === 'lunch' ? 'Lunch' : 'Dinner'} Thali to Plate — ₹{price}
+          Add {type === 'lunch' ? 'Lunch' : 'Dinner'} Thali to Plate
         </Button>
       </div>
     );
@@ -241,8 +237,8 @@ export default function StudentMenu() {
                   <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold opacity-80">{cartCount} Items</p>
-                  <p className="text-base sm:text-lg font-bold leading-tight">₹{cartTotal}</p>
+                  <p className="text-xs font-bold opacity-80">Your Plate</p>
+                  <p className="text-base sm:text-lg font-bold leading-tight">{cartCount} {cartCount === 1 ? 'Item' : 'Items'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 font-bold text-xs">

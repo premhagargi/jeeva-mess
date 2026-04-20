@@ -15,6 +15,7 @@ export interface ThaliItem {
   id: string;
   name: string;
   type: ThaliItemType;
+  amount: number;
 }
 
 export interface ThaliMenu {
@@ -29,6 +30,7 @@ export interface Student {
   name: string;
   email: string;
   mobile?: string;
+  credits: number;
   createdAt?: string;
 }
 
@@ -39,6 +41,10 @@ export interface OrderItem {
   quantity: number;
   price: number;
   description?: string;
+  // Sum of selected thali items' `amount` at the time the order was placed.
+  // Deducted from the student's credits when the order is dispatched.
+  dispatchAmount?: number;
+  selectedThaliItems?: string[];
 }
 
 export interface Order {
@@ -48,6 +54,8 @@ export interface Order {
   items: OrderItem[];
   total: number;
   status: OrderStatus;
+  selectedThaliItems?: string[];
+  creditsDeducted?: boolean;
   createdAt: string;
 }
 
