@@ -29,6 +29,10 @@ export default function ReportsPage() {
   const generateExcel = async () => {
     setIsGenerating(true);
     try {
+      // Yield to the browser so the loading state actually paints before the
+      // synchronous XLSX work blocks the main thread.
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
       const worksheet = XLSX.utils.json_to_sheet(items);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Items');
@@ -45,6 +49,9 @@ export default function ReportsPage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+
+      // Keep the spinner up long enough to be perceivable on fast machines.
+      await new Promise((resolve) => setTimeout(resolve, 400));
     } finally {
       setIsGenerating(false);
     }
