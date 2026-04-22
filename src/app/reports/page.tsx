@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 interface Item {
@@ -89,7 +89,14 @@ export default function ReportsPage() {
         </Button>
 
         <Button onClick={generateExcel} disabled={isGenerating} className="w-full">
-          {isGenerating ? 'Generating...' : 'Generate Excel Sheet'}
+          {isGenerating ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            'Generate Excel Sheet'
+          )}
         </Button>
       </div>
     </div>
