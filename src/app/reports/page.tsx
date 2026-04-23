@@ -10,14 +10,15 @@ import * as XLSX from 'xlsx';
 interface Item {
   item: string;
   amount: string;
+  quantity?: string;
 }
 
 export default function ReportsPage() {
-  const [items, setItems] = useState<Item[]>([{ item: '', amount: '' }]);
+  const [items, setItems] = useState<Item[]>([{ item: '', amount: '', quantity: '' }]);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const addRow = () => {
-    setItems([...items, { item: '', amount: '' }]);
+    setItems([...items, { item: '', amount: '', quantity: '' }]);
   };
 
   const updateItem = (index: number, field: keyof Item, value: string) => {
@@ -82,6 +83,16 @@ export default function ReportsPage() {
                   value={item.amount}
                   onChange={(e) => updateItem(index, 'amount', e.target.value)}
                   placeholder="Enter amount"
+                />
+              </div>
+              <div className="flex-1">
+                <Label htmlFor={`quantity-${index}`}>Quantity (optional)</Label>
+                <Input
+                  id={`quantity-${index}`}
+                  type="number"
+                  value={item.quantity || ''}
+                  onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                  placeholder="Enter quantity"
                 />
               </div>
             </div>
