@@ -47,17 +47,31 @@ service cloud.firestore {
 
     // ─── /orders ──────────────────────────────────────────────
     match /orders/{orderId} {
-      // Admins read all; a student can read their own orders.
+      // Admins read all; a student can read their own orders. Any signed-in
+      // (anonymous) guest may read guest orders — the client filters by their
+      // own phone number; phone is the guest identifier.
       allow read: if isAdmin()
-        || (signedIn() && resource.data.studentId + '@jeeva.eats' == request.auth.token.email);
+        || (signedIn() && resource.data.studentId + '@jeeva.eats' == request.auth.token.email)
+        || (signedIn() && resource.data.isGuest == true);
 
       // A student may place a pending order for themselves. creditsDeducted
       // must start as false (or absent) so only the dispatch transaction
       // toggles it to true.
+      // A guest (anonymous auth) may place a pending guest order — guestPhone
+      // and guestAddress must be present and creditsDeducted must be false.
       allow create: if signedIn()
-        && request.resource.data.studentId + '@jeeva.eats' == request.auth.token.email
         && request.resource.data.status == 'Pending'
-        && (!('creditsDeducted' in request.resource.data) || request.resource.data.creditsDeducted == false);
+        && (!('creditsDeducted' in request.resource.data) || request.resource.data.creditsDeducted == false)
+        && (
+          (request.resource.data.studentId + '@jeeva.eats' == request.auth.token.email)
+          || (
+            request.resource.data.isGuest == true
+            && request.resource.data.guestPhone is string
+            && request.resource.data.guestPhone.size() > 0
+            && request.resource.data.guestAddress is string
+            && request.resource.data.guestAddress.size() > 0
+          )
+        );
 
       // Only admins can update an order (status, creditsDeducted, etc.).
       // Students cannot edit their own orders once placed.

@@ -104,13 +104,31 @@ export function subscribeOrders(callback: (orders: Order[]) => void): Unsubscrib
     (snap) => {
       const orders = snap.docs.map(d => ({ ...d.data(), id: d.id } as Order));
       callback(orders);
-    }
+    },
+    // Permission errors are expected when an unauthenticated or guest user
+    // is signed in — the guest pages don't depend on this listener. Swallow
+    // silently so existing student/admin flows are not affected.
+    () => { /* noop */ }
   );
 }
 
 export async function fetchOrdersFromServer(): Promise<Order[]> {
   const snap = await getDocsFromServer(query(collection(db, 'orders'), orderBy('createdAt', 'desc')));
   return snap.docs.map(d => ({ ...d.data(), id: d.id } as Order));
+}
+
+// Fetches all guest orders for a given phone number. Used by the guest
+// orders page so a returning guest sees their own history when they re-enter
+// the same phone — the phone acts as the guest's persistent identifier.
+export async function fetchGuestOrdersByPhone(phone: string): Promise<Order[]> {
+  const q = query(
+    collection(db, 'orders'),
+    where('isGuest', '==', true),
+    where('guestPhone', '==', phone)
+  );
+  const snap = await getDocs(q);
+  const list = snap.docs.map(d => ({ ...d.data(), id: d.id } as Order));
+  return list.sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1));
 }
 
 export async function createOrder(order: Omit<Order, 'id'>): Promise<string> {

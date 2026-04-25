@@ -3,7 +3,7 @@
 import { useStore } from "@/hooks/use-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, UtensilsCrossed, CalendarDays, History, Wallet } from "lucide-react";
+import { ArrowRight, UtensilsCrossed, CalendarDays, History } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -33,28 +33,6 @@ export default function StudentDashboard() {
         <p className="concierge-text text-accent">Member Dashboard</p>
         <h1 className="text-2xl sm:text-[28px]">Welcome, {user?.name?.split(' ')[0]}</h1>
       </header>
-
-      <Card className="border-primary/30 shadow-none bg-primary/5">
-        <CardContent className="p-4 sm:p-5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="h-11 w-11 sm:h-12 sm:w-12 bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-              <Wallet className="h-5 w-5 sm:h-6 sm:w-6" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-muted-foreground">Mess Balance</p>
-              <p className="text-xs font-bold text-muted-foreground/70 truncate">Remaining credits</p>
-            </div>
-          </div>
-          <div className="text-right shrink-0">
-            <p className={cn(
-              "text-2xl sm:text-3xl font-bold leading-none",
-              (user?.credits ?? 0) < 0 && "text-destructive"
-            )}>
-              ₹{user?.credits ?? 0}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         {[

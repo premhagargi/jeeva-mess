@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, signInAnonymously } from 'firebase/auth';
 import { auth, getSecondaryAuth } from '@/lib/firebase';
 import {
   subscribeMenuItems,
@@ -14,6 +14,7 @@ import {
   deleteStudent as deleteStudentDoc,
   subscribeOrders,
   fetchOrdersFromServer,
+  fetchGuestOrdersByPhone,
   createOrder,
   updateOrderStatus as updateOrderStatusDoc,
   subscribeAdmins,
@@ -22,7 +23,7 @@ import {
   subscribeDashboardConfig,
   DashboardConfig,
 } from '@/lib/firestore';
-import type { Order, MenuItem, Student, ThaliMenu, ThaliItem, ThaliItemType, Admin, AdminRole } from '@/lib/mock-data';
+import type { Order, MenuItem, Student, ThaliMenu, ThaliItem, ThaliItemType, Admin, AdminRole, GuestSession } from '@/lib/mock-data';
 
 interface CartItem extends MenuItem {
   quantity: number;
@@ -80,6 +81,46 @@ function saveCart(cart: CartItem[]) {
   try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch {}
 }
 
+// ─── Guest session persistence ────────────────────────────────
+// Guests don't have a Firestore /students record. Their identity (phone +
+// address) lives in localStorage so they stay "logged in" across visits and
+// can return to their order history. Phone is the persistent identifier.
+
+const GUEST_KEY = 'jeeva_guest_session';
+const GUEST_CART_KEY = 'jeeva_guest_cart';
+const GUEST_ORDERS_KEY = 'jeeva_guest_orders'; // local cache of guest orders
+
+function loadGuestSession(): GuestSession | null {
+  try {
+    const raw = localStorage.getItem(GUEST_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+function saveGuestSession(g: GuestSession | null) {
+  try {
+    if (g) localStorage.setItem(GUEST_KEY, JSON.stringify(g));
+    else localStorage.removeItem(GUEST_KEY);
+  } catch {}
+}
+function loadGuestCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(GUEST_CART_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+function saveGuestCart(cart: CartItem[]) {
+  try { localStorage.setItem(GUEST_CART_KEY, JSON.stringify(cart)); } catch {}
+}
+function loadGuestOrdersCache(): Order[] {
+  try {
+    const raw = localStorage.getItem(GUEST_ORDERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+function saveGuestOrdersCache(orders: Order[]) {
+  try { localStorage.setItem(GUEST_ORDERS_KEY, JSON.stringify(orders)); } catch {}
+}
+
 let globalCart: CartItem[] = typeof window !== 'undefined' ? loadCart() : [];
 let globalOrders: Order[] = [];
 let globalStudents: Student[] = [];
@@ -87,6 +128,12 @@ let globalMenuItems: MenuItem[] = [];
 let globalThaliMenu: ThaliMenu = { lunch: [], dinner: [] };
 let globalAdmins: Admin[] = [];
 let globalDashboardConfig: DashboardConfig | null = null;
+
+// Guest state — kept fully separate from student/admin state so existing
+// flows are not affected. Guest cart/orders use their own localStorage keys.
+let currentGuest: GuestSession | null = typeof window !== 'undefined' ? loadGuestSession() : null;
+let globalGuestCart: CartItem[] = typeof window !== 'undefined' ? loadGuestCart() : [];
+let globalGuestOrders: Order[] = typeof window !== 'undefined' ? loadGuestOrdersCache() : [];
 
 let currentUser: Student | null = cached?.user ?? null;
 let currentAdmin: Admin | null = cached?.admin ?? null;
@@ -130,11 +177,14 @@ function initFirestoreListeners() {
     }),
     subscribeStudents((students) => {
       globalStudents = students;
-      // Keep currentUser in sync with latest Firestore state (e.g. credits changes).
+      // Keep currentUser in sync with the latest Firestore state, but strip
+      // `credits` — the student panel must not read or display credit values.
+      // Credits remain in the underlying student doc for admin workflows.
       if (currentUser) {
         const fresh = students.find(s => s.id === currentUser!.id);
         if (fresh) {
-          currentUser = fresh;
+          const { credits: _omit, ...rest } = fresh;
+          currentUser = rest as Student;
           saveAuthCache({ user: currentUser, admin: currentAdmin, isAdmin });
         }
       }
@@ -169,7 +219,9 @@ function initFirestoreListeners() {
           isAdmin = true;
           currentUser = null;
         } else if (student) {
-          currentUser = student;
+          // Strip `credits` before exposing the student to the client store.
+          const { credits: _omit, ...rest } = student;
+          currentUser = rest as Student;
           isAdmin = false;
           currentAdmin = null;
         }
@@ -203,6 +255,10 @@ function getSnapshot() {
     isAdmin,
     authLoading,
     dataLoading,
+    guest: currentGuest,
+    isGuest: !!currentGuest,
+    guestCart: globalGuestCart,
+    guestOrders: globalGuestOrders,
   };
 }
 
@@ -230,7 +286,8 @@ export function useStore() {
       // Wait for user state to resolve before returning
       const student = await getStudentByEmail(cred.user.email || '');
       if (student) {
-        currentUser = student;
+        const { credits: _omit, ...rest } = student;
+        currentUser = rest as Student;
         isAdmin = false;
         currentAdmin = null;
         saveAuthCache({ user: currentUser, admin: null, isAdmin: false });
@@ -274,6 +331,155 @@ export function useStore() {
     isAdmin = false;
     notify();
     await signOut(auth);
+  }, []);
+
+  // ── Guest auth & order actions ────────────────────────────
+  // Guests have no Firestore /students record. We sign them in anonymously
+  // (so Firestore rules permit order creation) and persist phone/address in
+  // localStorage. Phone is the persistent identifier for their order history.
+
+  const loginAsGuest = useCallback(async (phone: string, address: string, name?: string): Promise<boolean> => {
+    const cleanPhone = (phone || '').trim();
+    const cleanAddress = (address || '').trim();
+    if (!cleanPhone || !cleanAddress) return false;
+    // Refuse if a student/admin is currently signed in — guest mode is for
+    // walk-ins only and we must not clobber an existing auth session.
+    if (currentUser || currentAdmin) return false;
+    try {
+      // Anonymous sign-in is idempotent: reuse an existing anon user if one
+      // is already active. Only sign in if there is no current Firebase user
+      // or the current user is not anonymous (which shouldn't happen here
+      // because of the guard above, but kept defensive).
+      if (!auth.currentUser || !auth.currentUser.isAnonymous) {
+        await signInAnonymously(auth);
+      }
+      const session: GuestSession = {
+        phone: cleanPhone,
+        address: cleanAddress,
+        name: (name || '').trim() || undefined,
+        createdAt: new Date().toISOString(),
+      };
+      currentGuest = session;
+      saveGuestSession(session);
+
+      // Pull any existing orders for this phone (returning guest).
+      try {
+        const past = await fetchGuestOrdersByPhone(cleanPhone);
+        globalGuestOrders = past;
+        saveGuestOrdersCache(past);
+      } catch {}
+      notify();
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const logoutGuest = useCallback(async () => {
+    currentGuest = null;
+    globalGuestCart = [];
+    globalGuestOrders = [];
+    saveGuestSession(null);
+    saveGuestCart(globalGuestCart);
+    saveGuestOrdersCache(globalGuestOrders);
+    notify();
+    // Sign out anonymous auth only if no other auth user is active.
+    if (auth.currentUser?.isAnonymous) {
+      try { await signOut(auth); } catch {}
+    }
+  }, []);
+
+  const addToGuestCart = useCallback((item: MenuItem & { dispatchAmount?: number; selectedThaliItems?: string[] }) => {
+    const existing = globalGuestCart.find((i) => i.id === item.id);
+    if (existing) {
+      existing.quantity += 1;
+      globalGuestCart = [...globalGuestCart];
+    } else {
+      globalGuestCart = [...globalGuestCart, { ...item, quantity: 1 }];
+    }
+    saveGuestCart(globalGuestCart);
+    notify();
+  }, []);
+
+  const removeFromGuestCart = useCallback((id: string) => {
+    globalGuestCart = globalGuestCart.filter((i) => i.id !== id);
+    saveGuestCart(globalGuestCart);
+    notify();
+  }, []);
+
+  const updateGuestQuantity = useCallback((id: string, delta: number) => {
+    const item = globalGuestCart.find((i) => i.id === id);
+    if (item) {
+      const next = item.quantity + delta;
+      if (next <= 0) {
+        globalGuestCart = globalGuestCart.filter((i) => i.id !== id);
+      } else {
+        item.quantity = next;
+        globalGuestCart = [...globalGuestCart];
+      }
+      saveGuestCart(globalGuestCart);
+      notify();
+    }
+  }, []);
+
+  const placeGuestOrder = useCallback(async (): Promise<Order | null> => {
+    if (!currentGuest || globalGuestCart.length === 0) return null;
+    // Defensive: ensure anonymous auth is in place so Firestore create succeeds.
+    if (!auth.currentUser) {
+      try { await signInAnonymously(auth); } catch { return null; }
+    }
+    const orderData: Omit<Order, 'id'> = {
+      studentId: currentGuest.phone,
+      studentName: currentGuest.name || `Guest (${currentGuest.phone})`,
+      items: globalGuestCart.map(i => ({
+        name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+        description: i.description,
+        dispatchAmount: i.dispatchAmount ?? 0,
+        selectedThaliItems: i.selectedThaliItems ?? [],
+      })),
+      total: globalGuestCart.reduce((sum, i) => sum + i.price * i.quantity, 0),
+      status: 'Pending',
+      creditsDeducted: false,
+      createdAt: new Date().toISOString(),
+      isGuest: true,
+      guestPhone: currentGuest.phone,
+      guestAddress: currentGuest.address,
+    };
+    // Optimistic local cache update.
+    const tempId = `local-${Date.now()}`;
+    const optimistic: Order = { id: tempId, ...orderData };
+    globalGuestOrders = [optimistic, ...globalGuestOrders];
+    saveGuestOrdersCache(globalGuestOrders);
+    globalGuestCart = [];
+    saveGuestCart(globalGuestCart);
+    notify();
+
+    try {
+      const id = await createOrder(orderData);
+      const final: Order = { id, ...orderData };
+      globalGuestOrders = globalGuestOrders.map(o => o.id === tempId ? final : o);
+      saveGuestOrdersCache(globalGuestOrders);
+      notify();
+      return final;
+    } catch {
+      // Roll back the optimistic order so the guest can retry.
+      globalGuestOrders = globalGuestOrders.filter(o => o.id !== tempId);
+      saveGuestOrdersCache(globalGuestOrders);
+      notify();
+      return null;
+    }
+  }, []);
+
+  const refreshGuestOrders = useCallback(async () => {
+    if (!currentGuest) return;
+    try {
+      const fresh = await fetchGuestOrdersByPhone(currentGuest.phone);
+      globalGuestOrders = fresh;
+      saveGuestOrdersCache(fresh);
+      notify();
+    } catch {}
   }, []);
 
   // ── Cart actions (client-side only, instant) ──────────────
@@ -497,5 +703,13 @@ export function useStore() {
     removeThaliItem,
     updateThaliPrice,
     registerAdmin,
+    // Guest actions
+    loginAsGuest,
+    logoutGuest,
+    addToGuestCart,
+    removeFromGuestCart,
+    updateGuestQuantity,
+    placeGuestOrder,
+    refreshGuestOrders,
   };
 }

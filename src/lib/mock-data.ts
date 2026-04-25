@@ -57,6 +57,19 @@ export interface Order {
   selectedThaliItems?: string[];
   creditsDeducted?: boolean;
   createdAt: string;
+  // Guest ordering fields. When `isGuest` is true the order originates from a
+  // walk-in customer; `studentId` carries their phone number as the identifier
+  // and credits are never deducted (creditsDeducted stays false).
+  isGuest?: boolean;
+  guestPhone?: string;
+  guestAddress?: string;
+}
+
+export interface GuestSession {
+  phone: string;
+  address: string;
+  name?: string;
+  createdAt: string;
 }
 
 export type AdminRole = 'super_admin' | 'kitchen_manager' | 'order_manager';

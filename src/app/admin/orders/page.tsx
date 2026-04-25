@@ -3,7 +3,7 @@
 import { useStore } from "@/hooks/use-store";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle, XCircle, Package, RefreshCw } from "lucide-react";
+import { CheckCircle, XCircle, Package, RefreshCw, UserRound, MapPin, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { format } from "date-fns";
@@ -145,8 +145,18 @@ export default function AdminOrders() {
               >
                 <div className="flex justify-between items-start mb-2 gap-2">
                   <div className="min-w-0">
-                    <h3 className="font-bold text-sm text-accent truncate">{order.id.slice(0, 10)}...</h3>
-                    <p className="text-[13px] font-bold truncate">{order.studentName}</p>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-bold text-sm text-accent truncate">{order.id.slice(0, 10)}...</h3>
+                      {order.isGuest && (
+                        <span className="text-[9px] font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/30 px-1 py-0.5 shrink-0">
+                          Guest
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[13px] font-bold truncate flex items-center gap-1">
+                      {order.isGuest && <UserRound className="h-3 w-3 shrink-0" />}
+                      {order.studentName}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {format(new Date(order.createdAt), 'MMM dd, hh:mm a')}
                     </p>
@@ -162,6 +172,25 @@ export default function AdminOrders() {
                     </span>
                   </div>
                 </div>
+
+                {order.isGuest && (order.guestPhone || order.guestAddress) && (
+                  <div className="bg-accent/5 border border-accent/20 p-2 mb-2 space-y-1 text-xs">
+                    {order.guestPhone && (
+                      <div className="flex items-center gap-1.5 text-foreground">
+                        <Phone className="h-3 w-3 text-accent shrink-0" />
+                        <a href={`tel:${order.guestPhone}`} className="font-bold hover:underline truncate">
+                          {order.guestPhone}
+                        </a>
+                      </div>
+                    )}
+                    {order.guestAddress && (
+                      <div className="flex items-start gap-1.5 text-muted-foreground">
+                        <MapPin className="h-3 w-3 text-accent shrink-0 mt-0.5" />
+                        <span className="font-medium leading-snug">{order.guestAddress}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Order items */}
                 <div className="bg-secondary/50 p-2 mb-2 space-y-1">
