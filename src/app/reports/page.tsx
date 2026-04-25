@@ -28,6 +28,9 @@ export default function ReportsPage() {
   };
 
   const generateExcel = async () => {
+    const category = prompt('Please enter category:');
+    if (!category) return; // Cancel if no category entered
+
     setIsGenerating(true);
     try {
       // Yield to the browser so the loading state actually paints before the
@@ -36,7 +39,7 @@ export default function ReportsPage() {
 
       const worksheet = XLSX.utils.json_to_sheet(items);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Items');
+      XLSX.utils.book_append_sheet(workbook, worksheet, `${category}_Report`);
 
       // Create buffer and download
       const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
@@ -45,7 +48,7 @@ export default function ReportsPage() {
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'items_report.xlsx';
+      a.download = `${category}_report.xlsx`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -89,7 +92,6 @@ export default function ReportsPage() {
                 <Label htmlFor={`quantity-${index}`}>Quantity (optional)</Label>
                 <Input
                   id={`quantity-${index}`}
-                  type="number"
                   value={item.quantity || ''}
                   onChange={(e) => updateItem(index, 'quantity', e.target.value)}
                   placeholder="Enter quantity"
